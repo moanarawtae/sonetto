@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Sonetto \u2013 Electron music player inspired by modern streaming UX.",
   "main": "dist/main/index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "npm run build:main && npm run build:preload && concurrently -k \"npm:dev:renderer\" \"npm:dev:processes\"",
     "dev:renderer": "vite dev --host",

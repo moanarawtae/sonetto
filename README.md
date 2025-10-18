@@ -30,6 +30,10 @@ npm run dev
 
 Esse comando inicia o Vite com hot reload para o renderer e observa mudanças nos processos `main` e `preload`.
 
+### Erro "exports is not defined in ES module scope"
+
+Se durante `npm run dev` o Electron encerrar com a mensagem acima, verifique se o arquivo `package.json` contém `"type": "commonjs"`. Esse campo garante que o Node trate os bundles gerados em `dist/main` e `dist/preload` como CommonJS, disponibilizando as variáveis `exports` e `require` esperadas pelo código compilado. Após ajustar o arquivo, execute `npm run clean && npm run dev` para regenerar a saída em `dist/`.
+
 ## Build de produção
 
 ```bash
