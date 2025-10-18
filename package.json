@@ -2,7 +2,7 @@
   "name": "sonetto",
   "version": "0.1.0",
   "description": "Sonetto \u2013 Electron music player inspired by modern streaming UX.",
-  "main": "dist/main/index.js",
+  "main": "dist/main/index.cjs",
   "type": "commonjs",
   "scripts": {
     "dev": "npm run build:main && npm run build:preload && concurrently -k \"npm:dev:renderer\" \"npm:dev:processes\"",
@@ -10,7 +10,7 @@
     "dev:processes": "concurrently -k \"npm:watch:main\" \"npm:watch:preload\" \"npm:launch:electron\"",
     "watch:main": "tsc -p tsconfig.main.json --watch --preserveWatchOutput",
     "watch:preload": "tsc -p tsconfig.preload.json --watch --preserveWatchOutput",
-    "launch:electron": "wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
+    "launch:electron": "wait-on \"file:dist/main/index.cjs\" \"file:dist/preload/index.cjs\" tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
     "build": "npm run clean && npm run build:renderer && npm run build:main && npm run build:preload",
     "clean": "rimraf dist",
     "build:renderer": "vite build",

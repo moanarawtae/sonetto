@@ -8,5 +8,5 @@
     "rootDir": "src/preload",
     "composite": true
   },
-  "include": ["src/preload/**/*.ts"]
+  "include": ["src/preload/**/*.{ts,cts}"]
 }

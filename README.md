@@ -34,6 +34,17 @@ Esse comando inicia o Vite com hot reload para o renderer e observa mudanças no
 
 Se durante `npm run dev` o Electron encerrar com a mensagem acima, verifique se o arquivo `package.json` contém `"type": "commonjs"`. Esse campo garante que o Node trate os bundles gerados em `dist/main` e `dist/preload` como CommonJS, disponibilizando as variáveis `exports` e `require` esperadas pelo código compilado. Após ajustar o arquivo, execute `npm run clean && npm run dev` para regenerar a saída em `dist/`.
 
+### Erro "Cannot find module '.../dist/main/index.cjs'"
+
+Esse alerta aparece quando o Electron tenta carregar o bundle compilado do processo principal antes de o TypeScript finalizar a geração de `dist/main/index.cjs`. Em máquinas mais lentas, isso pode acontecer logo após um `npm install` ou após limpar a pasta `dist/`.
+
+Para resolver:
+
+1. Execute `npm run dev` novamente. O script aguarda a criação dos arquivos `dist/main/index.cjs` e `dist/preload/index.cjs` antes de iniciar o Electron.
+2. Se o erro persistir, rode manualmente `npm run build:main && npm run build:preload` para gerar os bundles e, em seguida, volte a rodar `npm run dev`.
+
+Após os arquivos surgirem em `dist/`, o Electron abrirá normalmente.
+
 ## Build de produção
 
 ```bash
