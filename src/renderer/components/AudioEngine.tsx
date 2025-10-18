@@ -29,8 +29,6 @@ const AudioEngine = () => {
     next: state.next
   }));
 
-  const audio = audioRef.current;
-
   const source = useMemo(() => {
     if (!currentTrack) return undefined;
     if (currentTrack.path.startsWith('file://')) {
@@ -40,10 +38,12 @@ const AudioEngine = () => {
   }, [currentTrack]);
 
   useEffect(() => {
+    const audio = audioRef.current;
     audio.volume = isMuted ? 0 : volume;
-  }, [audio, volume, isMuted]);
+  }, [volume, isMuted]);
 
   useEffect(() => {
+    const audio = audioRef.current;
     if (!source) return;
     if (audio.src !== source) {
       audio.src = source;
@@ -53,9 +53,10 @@ const AudioEngine = () => {
         setIsPlaying(false);
       });
     }
-  }, [audio, source, isPlaying, setIsPlaying]);
+  }, [source, isPlaying, setIsPlaying]);
 
   useEffect(() => {
+    const audio = audioRef.current;
     if (!currentTrack) {
       audio.pause();
       audio.removeAttribute('src');
@@ -69,16 +70,18 @@ const AudioEngine = () => {
     } else {
       audio.pause();
     }
-  }, [audio, currentTrack, isPlaying, setIsPlaying]);
+  }, [currentTrack, isPlaying, setIsPlaying]);
 
   useEffect(() => {
+    const audio = audioRef.current;
     if (!Number.isFinite(progress) || Number.isNaN(progress)) return;
     if (Math.abs(audio.currentTime - progress) > 0.2) {
       audio.currentTime = progress;
     }
-  }, [audio, progress]);
+  }, [progress]);
 
   useEffect(() => {
+    const audio = audioRef.current;
     const handleLoaded = () => {
       setDuration(audio.duration || currentTrack?.duration || 0);
     };
@@ -107,7 +110,7 @@ const AudioEngine = () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [audio, queue.length, next, repeatMode, setDuration, setIsPlaying, setProgress, currentTrack]);
+  }, [queue.length, next, repeatMode, setDuration, setIsPlaying, setProgress, currentTrack]);
 
   return null;
 };

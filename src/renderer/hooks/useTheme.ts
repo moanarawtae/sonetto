@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type ThemeMode = 'light' | 'dark';
 
 export const useTheme = () => {
   const [theme, setTheme] = useState<ThemeMode>('light');
+
+  const applyTheme = useCallback(
+    (mode: ThemeMode) => {
+      setTheme(mode);
+      document.documentElement.classList.toggle('dark', mode === 'dark');
+    },
+    []
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -18,18 +26,13 @@ export const useTheme = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [applyTheme]);
 
-  const applyTheme = (mode: ThemeMode) => {
-    setTheme(mode);
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-  };
-
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     const next = theme === 'light' ? 'dark' : 'light';
     window.sonetto.toggleTheme(next);
     applyTheme(next);
-  };
+  }, [applyTheme, theme]);
 
   return { theme, toggleTheme };
 };

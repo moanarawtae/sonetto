@@ -13,7 +13,7 @@ Sonetto é um player de música local para desktop, inspirado na fluidez de apps
 
 ## Pré-requisitos
 
-- Node.js 18 ou superior
+- Node.js 20 ou superior
 - npm 9 ou superior
 
 ## Instalação
