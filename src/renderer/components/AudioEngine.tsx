@@ -1,118 +1,99 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { usePlayerStore } from '@/store/playerStore';
+import { useEffect, useRef } from 'react';
+import { usePlayerStore } from '../state/playerStore';
 
-const AudioEngine = () => {
-  const audioRef = useRef(new Audio());
+export const AudioEngine = () => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const {
     currentTrack,
     isPlaying,
-    volume,
-    isMuted,
-    repeatMode,
-    progress,
-    queue,
     setIsPlaying,
+    next,
+    setPosition,
     setDuration,
-    setProgress,
-    next
-  } = usePlayerStore((state) => ({
-    currentTrack: state.currentTrack,
-    isPlaying: state.isPlaying,
-    volume: state.volume,
-    isMuted: state.isMuted,
-    repeatMode: state.repeatMode,
-    progress: state.progress,
-    queue: state.queue,
-    setIsPlaying: state.setIsPlaying,
-    setDuration: state.setDuration,
-    setProgress: state.setProgress,
-    next: state.next
-  }));
-
-  const source = useMemo(() => {
-    if (!currentTrack) return undefined;
-    if (currentTrack.path.startsWith('file://')) {
-      return currentTrack.path;
-    }
-    return `file://${currentTrack.path}`;
-  }, [currentTrack]);
+    position,
+    volume,
+    setFormatSupport
+  } = usePlayerStore();
 
   useEffect(() => {
-    const audio = audioRef.current;
-    audio.volume = isMuted ? 0 : volume;
-  }, [volume, isMuted]);
+    const bootstrap = async () => {
+      const support = await window.sonetto.player.ensureFormats();
+      setFormatSupport(support);
+    };
+    void bootstrap();
+  }, [setFormatSupport]);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!source) return;
-    if (audio.src !== source) {
-      audio.src = source;
+    if (!currentTrack || !audioRef.current) {
+      return;
     }
-    if (isPlaying) {
-      void audio.play().catch(() => {
+    const audio = audioRef.current;
+    const loadTrack = async () => {
+      const path = await window.sonetto.player.resolveTrackPath(currentTrack.id);
+      audio.src = path;
+      audio.currentTime = 0;
+      await audio.play().catch(() => {
         setIsPlaying(false);
       });
-    }
-  }, [source, isPlaying, setIsPlaying]);
+    };
+    void loadTrack();
+  }, [currentTrack, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!currentTrack) {
-      audio.pause();
-      audio.removeAttribute('src');
-      setIsPlaying(false);
+    if (!audio) {
       return;
     }
     if (isPlaying) {
-      void audio.play().catch(() => {
-        setIsPlaying(false);
-      });
+      void audio.play().catch(() => setIsPlaying(false));
     } else {
       audio.pause();
     }
-  }, [currentTrack, isPlaying, setIsPlaying]);
+  }, [isPlaying, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!Number.isFinite(progress) || Number.isNaN(progress)) return;
-    if (Math.abs(audio.currentTime - progress) > 0.2) {
-      audio.currentTime = progress;
+    if (!audio) {
+      return;
     }
-  }, [progress]);
+    audio.volume = volume;
+  }, [volume]);
 
   useEffect(() => {
     const audio = audioRef.current;
-    const handleLoaded = () => {
-      setDuration(audio.duration || currentTrack?.duration || 0);
-    };
+    if (!audio) {
+      return;
+    }
     const handleTimeUpdate = () => {
-      setProgress(audio.currentTime);
+      setPosition(audio.currentTime);
+    };
+    const handleLoaded = () => {
+      setDuration(audio.duration);
     };
     const handleEnded = () => {
-      if (repeatMode === 'track') {
-        audio.currentTime = 0;
-        void audio.play();
-        return;
-      }
-      if (queue.length === 0) {
+      const upcoming = next();
+      if (!upcoming) {
         setIsPlaying(false);
-        return;
       }
-      next();
     };
-
-    audio.addEventListener('loadedmetadata', handleLoaded);
     audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoaded);
     audio.addEventListener('ended', handleEnded);
-
     return () => {
-      audio.removeEventListener('loadedmetadata', handleLoaded);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoaded);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [queue.length, next, repeatMode, setDuration, setIsPlaying, setProgress, currentTrack]);
+  }, [next, setDuration, setIsPlaying, setPosition]);
 
-  return null;
+  useEffect(() => {
+    if (!audioRef.current) {
+      return;
+    }
+    if (Math.abs(audioRef.current.currentTime - position) > 1) {
+      audioRef.current.currentTime = position;
+    }
+  }, [position]);
+
+  return <audio ref={audioRef} hidden data-testid="audio-engine" />;
 };
-
-export default AudioEngine;

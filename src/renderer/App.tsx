@@ -1,56 +1,90 @@
-import { useState } from 'react';
-import SidebarNav from '@/components/SidebarNav';
-import TopBar from '@/components/TopBar';
-import NowPlayingBar from '@/components/NowPlayingBar';
-import AudioEngine from '@/components/AudioEngine';
-import { usePlayerStore } from '@/store/playerStore';
-import type { SonettoTrack } from '../types/global';
+import { useCallback, useEffect } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { SidebarNav } from './components/SidebarNav';
+import { TopBar } from './components/TopBar';
+import { NowPlayingBar } from './components/NowPlayingBar';
+import { AudioEngine } from './components/AudioEngine';
+import { HomeView } from './pages/HomeView';
+import { TracksView } from './pages/TracksView';
+import { AlbumsView } from './pages/AlbumsView';
+import { ArtistsView } from './pages/ArtistsView';
+import { PlaylistsView } from './pages/PlaylistsView';
+import { SettingsView } from './pages/SettingsView';
+import { useLibraryStore } from './state/libraryStore';
+import { useSettingsStore } from './state/settingsStore';
+import { useTheme } from './hooks/useTheme';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 const App = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const setTrack = usePlayerStore((state) => state.setTrack);
+  const loadTracks = useLibraryStore((state) => state.loadTracks);
+  const query = useLibraryStore((state) => state.query);
+  const setScanning = useLibraryStore((state) => state.setScanning);
+  const setScanProgress = useLibraryStore((state) => state.setScanProgress);
+  const updateSettings = useSettingsStore((state) => state.update);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleAddFolder = async () => {
-    const file = await window.sonetto.selectAudioFile();
-    if (!file) return;
-    const track: SonettoTrack = {
-      id: file,
-      path: file,
-      title: file.split(/[\\/]/).pop() ?? 'Faixa desconhecida',
-      artist: 'Artista desconhecido',
-      duration: 0
+  useTheme();
+  useKeyboardShortcuts();
+
+  useEffect(() => {
+    const unsubscribe = window.sonetto.library.onScanProgress((payload) => {
+      setScanProgress(payload);
+    });
+    return () => {
+      unsubscribe();
     };
-    setTrack(track, { autoplay: true });
-  };
+  }, [setScanProgress]);
+
+  const handleSearch = useCallback(
+    (term: string) => {
+      void loadTracks({ ...query, search: term, offset: 0 });
+      if (!location.pathname.includes('/library')) {
+        navigate('/library/tracks');
+      }
+    },
+    [loadTracks, location.pathname, navigate, query]
+  );
+
+  const handleAddFolder = useCallback(async () => {
+    const folders = await window.sonetto.settings.selectFolders();
+    if (folders.length) {
+      const current = useSettingsStore.getState().monitoredFolders;
+      const merged = [...new Set([...current, ...folders])];
+      await updateSettings({ monitoredFolders: merged });
+      setScanning(true);
+      const result = await window.sonetto.library.scan(folders);
+      setScanning(false);
+      if (result.tracksImported > 0) {
+        await loadTracks(query);
+      }
+    }
+  }, [loadTracks, query, setScanning, updateSettings]);
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <AudioEngine />
+    <div className="flex h-screen flex-col bg-slate-100 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
       <div className="flex flex-1 overflow-hidden">
-        <aside className="hidden w-64 border-r border-slate-200 bg-white/70 backdrop-blur lg:block dark:border-slate-800 dark:bg-slate-900/70">
-          <SidebarNav />
-        </aside>
-        <main className="flex flex-1 flex-col overflow-hidden">
-          <TopBar onSearch={setSearchTerm} onAddFolder={handleAddFolder} />
-          <section className="flex-1 overflow-auto bg-slate-50 p-6 dark:bg-slate-950/60">
-            <div className="mx-auto flex max-w-5xl flex-col gap-6">
-              <header>
-                <h1 className="text-2xl font-semibold tracking-tight">Descubra sua biblioteca</h1>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Adicione pastas para começar a construir sua biblioteca local. O Sonetto indexará metadados, capas e permitirá criar playlists inteligentes.
-                </p>
-              </header>
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-8 text-center text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-                <p className="text-base font-medium">Busca atual: {searchTerm || '—'}</p>
-                <p className="mt-2 text-sm">
-                  Esta é uma prévia da interface. As seções de biblioteca, playlists e fila dinâmica serão habilitadas conforme evoluímos os próximos marcos.
-                </p>
-              </div>
+        <SidebarNav />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <TopBar onSearch={handleSearch} onAddFolder={handleAddFolder} />
+          <main className="flex-1 overflow-y-auto bg-gradient-to-br from-white via-slate-50 to-slate-100 p-6 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+            <div className="mx-auto flex h-full max-w-7xl flex-col space-y-6">
+              <Routes>
+                <Route path="/" element={<Navigate to="/library" replace />} />
+                <Route path="/library" element={<HomeView />} />
+                <Route path="/library/tracks" element={<TracksView />} />
+                <Route path="/library/albums" element={<AlbumsView />} />
+                <Route path="/library/artists" element={<ArtistsView />} />
+                <Route path="/library/playlists" element={<PlaylistsView />} />
+                <Route path="/settings" element={<SettingsView />} />
+                <Route path="*" element={<Navigate to="/library" replace />} />
+              </Routes>
             </div>
-          </section>
-        </main>
+          </main>
+          <NowPlayingBar onExpand={() => undefined} />
+        </div>
       </div>
-      <NowPlayingBar />
+      <AudioEngine />
     </div>
   );
 };

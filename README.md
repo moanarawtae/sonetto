@@ -1,87 +1,118 @@
-# sonetto
+# sonetto 1.0.0
 
-Sonetto é um player de música local para desktop, inspirado na fluidez de apps modernos sem depender de serviços externos. O projeto utiliza Electron, React, TypeScript e Tailwind CSS para entregar uma experiência consistente em Windows, macOS e Linux.
+Sonetto é um player de música local multiplataforma inspirado nas melhores experiências de streaming, mas totalmente offline. A versão 1.0 inclui biblioteca com varredura de pastas, fila com shuffle/repeat, playlists persistidas em SQLite, tema claro/escuro, atalhos de teclado e interface responsiva construída em React + Tailwind.
 
-## Principais funcionalidades (M1)
+## Stack
 
-- Estrutura Electron com processos `main`, `preload` e `renderer` isolados.
-- Interface inicial com layout semelhante ao Spotify, porém com identidade própria.
-- Barra "Agora tocando" com controles de reprodução, volume, shuffle e repeat.
-- Motor de áudio baseado em `HTMLAudioElement`, controlado por Zustand.
-- Suporte a seleção de arquivos de áudio locais (mp3 obrigatório, outros formatos best-effort).
-- Alternância entre tema claro/escuro persistindo via Electron `nativeTheme`.
+- **Electron 32** para empacotamento desktop (Windows, macOS, Linux).
+- **React 18 + Vite 7 + Tailwind CSS 3** no renderer.
+- **Zustand 5** para estados globais (player, biblioteca, preferências).
+- **better-sqlite3 12** para banco local (`tracks`, `artists`, `albums`, `playlists`, `folders`).
+- **music-metadata 11** para leitura de tags ID3, capas embutidas e duração.
+- **chokidar 3** para monitoramento em tempo real das pastas indexadas.
 
 ## Pré-requisitos
 
-- Node.js 20 ou superior
-- npm 9 ou superior
+- Node.js **>= 20.11.0**
+- npm **>= 10.0.0**
+- Ambiente com acesso ao sistema de arquivos das pastas de música.
 
-## Instalação
+## Instalação de dependências
 
 ```bash
 npm install
 ```
 
-## Executando em desenvolvimento
+Esse comando prepara o ambiente instalando todas as dependências necessárias (Electron, ferramentas de build, tipos TypeScript e bibliotecas de UI).
 
-```bash
-npm run dev
+## Manual passo a passo – Iniciando o Sonetto 1.0
+
+1. **Instalar dependências** – `npm install` (somente na primeira vez ou após atualizar `package.json`).
+2. **Compilar e iniciar em desenvolvimento** – `npm run dev`.
+   - O Vite sobe em `http://localhost:5173` para o renderer.
+   - Os processos `main` e `preload` são observados com `tsc --watch`.
+   - O Electron abre automaticamente após a compilação inicial.
+3. **Adicionar pastas de música**
+   - Clique em **“Adicionar pasta”** na barra superior ou abra **Configurações > Selecionar pastas**.
+   - Selecione uma ou mais pastas contendo arquivos `.mp3`, `.m4a/.aac`, `.ogg`, `.wav` ou `.flac`.
+   - O Sonetto inicia o scanner imediatamente (barra de progresso exibida no painel “Início”).
+4. **Acompanhar o scan**
+   - O painel **Início** mostra quantas faixas, artistas, álbuns e playlists já existem.
+   - Durante a varredura, um cartão informa o arquivo atual e a porcentagem processada.
+   - O scanner lê metadados, detecta capas (embutidas ou `cover.jpg/png`) e registra duplicatas por caminho.
+5. **Explorar a biblioteca**
+   - **Faixas**: lista virtualizada com ordenação e busca instantânea.
+   - **Álbuns / Artistas**: grids responsivos com cartões.
+   - **Playlists**: painel com botões de reprodução direta (em 1.0 apenas leitura; criação via scanner/placeholder).
+6. **Reproduzir músicas**
+   - Clique em qualquer faixa para carregar a fila a partir daquele ponto.
+   - A barra **Agora tocando** exibe título, artista, progresso (scrub visual), controles de shuffle/repeat, volume e botão de expansão (reservado para futuras letras/fila detalhada).
+7. **Atalhos de teclado** (janela ativa):
+   - **Espaço** – play/pause
+   - **Ctrl/Cmd + →** – próxima faixa
+   - **Ctrl/Cmd + ←** – faixa anterior
+   - **Alt + → / Alt + ←** – pular ±5s
+   - **Ctrl/Cmd + ↑ / ↓** – volume ±5%
+   - **Ctrl/Cmd + F** – focar busca
+   - **Ctrl/Cmd + L** – focar biblioteca
+8. **Gerenciar configurações**
+   - Defina tema `Claro`, `Escuro` ou `Sistema` (persistido em `settings.json`).
+   - Ative a ocultação de formatos não suportados pelo runtime.
+   - Reexecute o scanner manualmente com **“Reescanear agora”**.
+9. **Encerrar desenvolvimento**
+   - Pressione `Ctrl+C` no terminal que roda `npm run dev`.
+
+## Scripts úteis
+
+| Script | Descrição |
+| ------ | --------- |
+| `npm run dev` | Compila main/preload, inicia Vite e abre o Electron em modo desenvolvimento. |
+| `npm run build` | Gera bundles de renderer (`vite build`), main e preload (`tsc`). |
+| `npm run dist` | Empacota instaladores com electron-builder (AppImage, dmg, nsis). |
+| `npm run lint` | Executa ESLint com configuração flat (Node + Browser). |
+| `npm run typecheck` | Verificação estrita do TypeScript sem emitir arquivos. |
+| `npm run clean` | Remove diretório `dist/` e cache do Vite. |
+| `npm run test` | Placeholder para testes unitários (Vitest). |
+| `npm run e2e` | Placeholder para Playwright. |
+
+## Arquitetura
+
+```
+src/
+├── common/              # Constantes e tipos compartilhados entre processos
+├── main/                # Processo principal (janela, banco, IPC, watcher)
+│   ├── ipc/             # Registradores de canais IPC
+│   ├── services/        # Banco, scanner, logger, watchers, settings
+│   └── index.cts        # Bootstrap do Electron
+├── preload/             # Context bridge seguro exposto ao renderer
+│   └── index.cts
+└── renderer/            # Aplicação React
+    ├── components/      # Barra agora tocando, grids, tabelas
+    ├── hooks/           # Tema, atalhos de teclado
+    ├── pages/           # Início, Faixas, Álbuns, Artistas, Playlists, Configurações
+    ├── state/           # Stores Zustand (player, biblioteca, settings)
+    ├── styles/          # Tailwind
+    └── utils/           # Helpers (ex: formatTime)
 ```
 
-Esse comando inicia o Vite com hot reload para o renderer e observa mudanças nos processos `main` e `preload`.
+## Banco de dados
 
-### Erro "exports is not defined in ES module scope"
+O banco SQLite é criado em `app.getPath('userData')/library.db` com as tabelas:
 
-Se durante `npm run dev` o Electron encerrar com a mensagem acima, verifique se o arquivo `package.json` contém `"type": "commonjs"`. Esse campo garante que o Node trate os bundles gerados em `dist/main` e `dist/preload` como CommonJS, disponibilizando as variáveis `exports` e `require` esperadas pelo código compilado. Após ajustar o arquivo, execute `npm run clean && npm run dev` para regenerar a saída em `dist/`.
+- `tracks` (metadados, duração, formato, relação com `folders`)
+- `artists`, `albums`
+- `playlists`, `playlist_tracks`
+- `folders` (pastas monitoradas)
 
-### Erro "Cannot find module '.../dist/main/index.cjs'"
+As capas extraídas são armazenadas em `userData/covers/<hash>.(jpg|png)` e o hash é referenciado na tabela `tracks`.
 
-Esse alerta aparece quando o Electron tenta carregar o bundle compilado do processo principal antes de o TypeScript finalizar a geração de `dist/main/index.cjs`. Em máquinas mais lentas, isso pode acontecer logo após um `npm install` ou após limpar a pasta `dist/`.
+## Troubleshooting
 
-Para resolver:
-
-1. Execute `npm run dev` novamente. O script aguarda a criação dos arquivos `dist/main/index.cjs` e `dist/preload/index.cjs` antes de iniciar o Electron.
-2. Se o erro persistir, rode manualmente `npm run build:main && npm run build:preload` para gerar os bundles e, em seguida, volte a rodar `npm run dev`.
-
-Após os arquivos surgirem em `dist/`, o Electron abrirá normalmente.
-
-## Build de produção
-
-```bash
-npm run build
-npm run dist
-```
-
-O primeiro comando gera os artefatos de renderer, main e preload dentro de `dist/`. O segundo empacota o aplicativo com o `electron-builder`.
-
-## Testes
-
-- `npm run test` – testes unitários com Vitest (a serem implementados nos próximos marcos).
-- `npm run e2e` – testes end-to-end com Playwright (placeholder).
-- `npm run lint` – validação de linting com ESLint + TypeScript.
-
-## Estrutura de pastas
-
-```
-.
-├── build/                # Recursos para empacotamento (futuros)
-├── dist/                 # Saída de build (gerado)
-├── src/
-│   ├── main/             # Processo principal do Electron
-│   ├── preload/          # Context bridge seguro exposto à UI
-│   └── renderer/         # Aplicação React + Zustand + Tailwind
-├── index.html            # Entrada do Vite
-└── README.md
-```
-
-## Próximos passos
-
-1. Implementar scanner de biblioteca com SQLite para indexar faixas e metadados.
-2. Construir listagens de artistas/álbuns com virtualização e busca unificada.
-3. Adicionar gerenciamento de playlists, fila e drag-and-drop.
-4. Integrar configurações avançadas, atalhos globais e testes automatizados.
-5. Preparar instaladores para as três plataformas alvo.
+- **Nenhum som ao reproduzir:** verifique a aba Configurações > “Ocultar formatos não suportados”; o preload detecta suporte via `HTMLAudioElement.canPlayType` e exibe aviso se o formato não estiver disponível.
+- **Scanner demora em bibliotecas grandes:** o processo roda de forma incremental; mantenha a janela ativa para acompanhar o progresso. Pastas são monitoradas pelo `chokidar` e atualizações incrementais são disparadas automaticamente.
+- **Erro “exports is not defined”:** confirme `"type": "commonjs"` no `package.json` e recompile (`npm run clean && npm run dev`).
+- **Empacotamento falha por dependências nativas:** assegure-se de estar usando Node 20+ e ferramentas de build adequadas (Python 3 + ferramentas nativas específicas da plataforma).
 
 ## Licença
 
-Este projeto é distribuído sob a licença MIT. Veja o arquivo `LICENSE` (a ser adicionado) para mais detalhes.
+Projeto licenciado sob **MIT**. Contribuições e melhorias são bem-vindas!

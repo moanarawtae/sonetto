@@ -1,38 +1,27 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useSettingsStore } from '../state/settingsStore';
 
-type ThemeMode = 'light' | 'dark';
+const applyTheme = (theme: 'light' | 'dark') => {
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+};
 
 export const useTheme = () => {
-  const [theme, setTheme] = useState<ThemeMode>('light');
-
-  const applyTheme = useCallback(
-    (mode: ThemeMode) => {
-      setTheme(mode);
-      document.documentElement.classList.toggle('dark', mode === 'dark');
-    },
-    []
-  );
+  const { theme, load } = useSettingsStore();
 
   useEffect(() => {
-    let isMounted = true;
-    window.sonetto
-      .getTheme()
-      .then((mode) => {
-        if (!isMounted) return;
-        applyTheme(mode);
-      })
-      .catch(() => applyTheme('light'));
+    void load();
+  }, [load]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [applyTheme]);
-
-  const toggleTheme = useCallback(() => {
-    const next = theme === 'light' ? 'dark' : 'light';
-    window.sonetto.toggleTheme(next);
-    applyTheme(next);
-  }, [applyTheme, theme]);
-
-  return { theme, toggleTheme };
+  useEffect(() => {
+    if (theme === 'system') {
+      applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    } else {
+      applyTheme(theme);
+    }
+  }, [theme]);
 };
