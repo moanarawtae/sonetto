@@ -5,11 +5,13 @@
     "module": "CommonJS",
     "lib": ["ES2020"],
     "types": ["node"],
-    "rootDir": "src/main",
+    "rootDir": "src",
     "composite": true
   },
   "include": [
     "src/main/**/*.ts",
-    "src/main/**/*.cts"
+    "src/main/**/*.cts",
+    "src/common/**/*.ts",
+    "src/types/**/*.d.ts"
   ]
 }

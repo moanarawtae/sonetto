@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { parseFile } from 'music-metadata';
+import { parseFile, type IPicture } from 'music-metadata';
 import { SUPPORTED_AUDIO_FORMATS, COVER_CACHE_DIR } from '../../common/constants';
 import type { AudioFormat, ScanProgressPayload, ScanResult } from '../../common/types';
 import {
@@ -60,9 +60,14 @@ const ensureCoverDirectory = async (): Promise<string> => {
   return dir;
 };
 
-const saveCoverArt = async (pictures: { format: string; data: Buffer }[] | undefined, audioPath: string) => {
+const saveCoverArt = async (pictures: IPicture[] | undefined, audioPath: string) => {
   const dir = await ensureCoverDirectory();
-  let picture = pictures?.[0];
+  let picture: { format: string; data: Buffer } | undefined = pictures?.[0]
+    ? {
+        format: pictures[0].format ?? 'jpg',
+        data: Buffer.from(pictures[0].data)
+      }
+    : undefined;
   if (!picture) {
     const folderCandidates = ['cover.jpg', 'cover.png', 'folder.jpg', 'folder.png'];
     for (const candidate of folderCandidates) {

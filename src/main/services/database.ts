@@ -16,7 +16,9 @@ import type {
 } from '../../common/types';
 import { log } from './logger';
 
-let db: Database.Database | null = null;
+type SqliteDatabase = InstanceType<typeof Database>;
+
+let db: SqliteDatabase | null = null;
 
 const MIGRATION_STEPS: string[] = [
   `CREATE TABLE IF NOT EXISTS folders (
@@ -78,7 +80,7 @@ const MIGRATION_STEPS: string[] = [
   `CREATE INDEX IF NOT EXISTS idx_artists_name ON artists(name);`
 ];
 
-export const getDatabase = (): Database.Database => {
+export const getDatabase = (): SqliteDatabase => {
   if (db) {
     return db;
   }
@@ -110,7 +112,9 @@ export const insertFolder = (folderPath: string) => {
 };
 
 export const listFolders = (): { id: number; path: string }[] => {
-  return getDatabase().prepare(`SELECT id, path FROM folders WHERE include = 1`).all();
+  return getDatabase()
+    .prepare(`SELECT id, path FROM folders WHERE include = 1`)
+    .all() as { id: number; path: string }[];
 };
 
 export const upsertTrack = (

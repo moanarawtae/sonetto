@@ -5,11 +5,13 @@
     "module": "CommonJS",
     "lib": ["ES2020", "DOM"],
     "types": ["node"],
-    "rootDir": "src/preload",
+    "rootDir": "src",
     "composite": true
   },
   "include": [
     "src/preload/**/*.ts",
-    "src/preload/**/*.cts"
+    "src/preload/**/*.cts",
+    "src/common/**/*.ts",
+    "src/types/**/*.d.ts"
   ]
 }

@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, shell } from 'electron';
 import { IPC_CHANNELS } from '../common/ipc';
 import type {
+  AudioFormat,
   RendererBridge,
   ScanProgressPayload,
   TrackListQuery
@@ -9,8 +10,8 @@ import { SUPPORTED_AUDIO_FORMATS, REQUIRED_AUDIO_FORMAT } from '../common/consta
 
 const detectFormats = () => {
   const audio = new globalThis.Audio();
-  const supported: string[] = [];
-  const unsupported: string[] = [];
+  const supported: AudioFormat[] = [];
+  const unsupported: AudioFormat[] = [];
   for (const format of SUPPORTED_AUDIO_FORMATS) {
     const mime = format === 'mp3' ? 'audio/mpeg' : `audio/${format}`;
     const verdict = audio.canPlayType(mime);
