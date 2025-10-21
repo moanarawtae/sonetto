@@ -16,6 +16,7 @@ interface PlayerState {
   repeat: RepeatMode;
   shuffle: boolean;
   volume: number;
+  previousVolume: number;
   muted: boolean;
   position: number;
   duration: number;
@@ -50,6 +51,11 @@ const cycleRepeatMode = (current: RepeatMode): RepeatMode => {
   }
 };
 
+const DEFAULT_VOLUME = 0.8;
+
+const resolvePreviousVolume = (volume?: number): number =>
+  typeof volume === 'number' && volume > 0 ? volume : DEFAULT_VOLUME;
+
 export const usePlayerStore = create<PlayerState>()(
   persist(
     (set, get) => ({
@@ -59,7 +65,8 @@ export const usePlayerStore = create<PlayerState>()(
       isPlaying: false,
       repeat: 'none',
       shuffle: false,
-      volume: 0.8,
+      volume: DEFAULT_VOLUME,
+      previousVolume: DEFAULT_VOLUME,
       muted: false,
       position: 0,
       duration: 0,
@@ -134,11 +141,30 @@ export const usePlayerStore = create<PlayerState>()(
       setCurrentTrack: (track) => set({ currentTrack: track }),
       setPosition: (position) => set({ position }),
       setDuration: (duration) => set({ duration }),
-      setVolume: (volume) => set({ volume, muted: volume === 0 }),
-      toggleMute: () => {
-        const state = get();
-        set({ muted: !state.muted, volume: !state.muted ? 0 : state.volume || 0.8 });
-      },
+      setVolume: (volume) =>
+        set((state) => ({
+          volume,
+          muted: volume === 0,
+          previousVolume: volume > 0 ? volume : resolvePreviousVolume(state.previousVolume)
+        })),
+      toggleMute: () =>
+        set((state) => {
+          if (!state.muted) {
+            const storedVolume =
+              state.volume > 0 ? state.volume : resolvePreviousVolume(state.previousVolume);
+            return {
+              muted: true,
+              volume: 0,
+              previousVolume: storedVolume
+            };
+          }
+
+          const restoredVolume = resolvePreviousVolume(state.previousVolume);
+          return {
+            muted: false,
+            volume: restoredVolume
+          };
+        }),
       cycleRepeat: () => set((state) => ({ repeat: cycleRepeatMode(state.repeat) })),
       toggleShuffle: () => set((state) => ({ shuffle: !state.shuffle })),
       setFormatSupport: (payload) => set({
@@ -150,6 +176,7 @@ export const usePlayerStore = create<PlayerState>()(
       name: 'sonetto-player',
       partialize: (state) => ({
         volume: state.volume,
+        previousVolume: state.previousVolume,
         repeat: state.repeat,
         shuffle: state.shuffle,
         supportedFormats: state.supportedFormats,
