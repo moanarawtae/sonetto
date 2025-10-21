@@ -89,6 +89,7 @@ export const usePlayerStore = create<PlayerState>()(
       next: () => {
         const state = get();
         if (state.repeat === 'track' && state.currentTrack) {
+          set({ position: 0, isPlaying: true });
           return state.currentTrack;
         }
         const queue = state.queue.slice();
