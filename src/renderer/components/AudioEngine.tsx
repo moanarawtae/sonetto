@@ -13,7 +13,8 @@ export const AudioEngine = () => {
     setDuration,
     position,
     volume,
-    setFormatSupport
+    setFormatSupport,
+    repeat
   } = usePlayerStore();
 
   useEffect(() => {
@@ -75,6 +76,14 @@ export const AudioEngine = () => {
       const upcoming = next();
       if (!upcoming) {
         setIsPlaying(false);
+        return;
+      }
+
+      if (repeat === 'track' && currentTrack && upcoming.id === currentTrack.id) {
+        audio.currentTime = 0;
+        void audio.play().catch(() => {
+          setIsPlaying(false);
+        });
       }
     };
     audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -85,7 +94,7 @@ export const AudioEngine = () => {
       audio.removeEventListener('loadedmetadata', handleLoaded);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [next, setDuration, setIsPlaying, setPosition]);
+  }, [currentTrack, next, repeat, setDuration, setIsPlaying, setPosition]);
 
   useEffect(() => {
     if (!audioRef.current) {
