@@ -21,13 +21,13 @@ export const DEFAULT_SETTINGS = {
 };
 
 export const PLAYBACK_SHORTCUTS = {
-  PLAY_PAUSE: 'Space',
-  NEXT_TRACK: 'Ctrl+ArrowRight',
-  PREV_TRACK: 'Ctrl+ArrowLeft',
-  SEARCH: 'Ctrl+KeyF',
-  FOCUS_LIBRARY: 'Ctrl+KeyL',
-  SEEK_FORWARD: 'Alt+ArrowRight',
-  SEEK_BACKWARD: 'Alt+ArrowLeft',
-  VOLUME_UP: 'Ctrl+ArrowUp',
-  VOLUME_DOWN: 'Ctrl+ArrowDown'
-};
+  playPause: ['Space'],
+  next: ['Control+ArrowRight', 'Meta+ArrowRight'],
+  previous: ['Control+ArrowLeft', 'Meta+ArrowLeft'],
+  seekForward: ['Alt+ArrowRight'],
+  seekBackward: ['Alt+ArrowLeft'],
+  volumeUp: ['Control+ArrowUp', 'Meta+ArrowUp'],
+  volumeDown: ['Control+ArrowDown', 'Meta+ArrowDown'],
+  search: ['Control+KeyF', 'Meta+KeyF'],
+  focusLibrary: ['Control+KeyL', 'Meta+KeyL']
+} as const;
