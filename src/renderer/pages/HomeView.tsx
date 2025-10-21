@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { LibrarySummary, ScanProgressPayload } from '../../common/types';
 import { useLibraryStore } from '../state/libraryStore';
+import { bridge } from '../bridge';
 
 export const HomeView = () => {
   const [summary, setSummary] = useState<LibrarySummary>({ tracks: 0, artists: 0, albums: 0, playlists: 0 });
   const { scanning, scanProgress, setScanProgress } = useLibraryStore();
 
   useEffect(() => {
-    void window.sonetto.library.getSummary().then(setSummary);
-    const unsubscribe = window.sonetto.library.onScanProgress((payload: ScanProgressPayload) => {
+    void bridge.library.getSummary().then(setSummary);
+    const unsubscribe = bridge.library.onScanProgress((payload: ScanProgressPayload) => {
       setScanProgress(payload);
     });
     return () => {

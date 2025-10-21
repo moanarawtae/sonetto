@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { usePlayerStore } from '../state/playerStore';
+import { bridge } from '../bridge';
 
 export const AudioEngine = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -17,7 +18,7 @@ export const AudioEngine = () => {
 
   useEffect(() => {
     const bootstrap = async () => {
-      const support = await window.sonetto.player.ensureFormats();
+      const support = await bridge.player.ensureFormats();
       setFormatSupport(support);
     };
     void bootstrap();
@@ -29,7 +30,7 @@ export const AudioEngine = () => {
     }
     const audio = audioRef.current;
     const loadTrack = async () => {
-      const path = await window.sonetto.player.resolveTrackPath(currentTrack.id);
+      const path = await bridge.player.resolveTrackPath(currentTrack.id);
       audio.src = path;
       audio.currentTime = 0;
       await audio.play().catch(() => {

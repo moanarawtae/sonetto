@@ -14,6 +14,7 @@ import { useLibraryStore } from './state/libraryStore';
 import { useSettingsStore } from './state/settingsStore';
 import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { bridge } from './bridge';
 
 const App = () => {
   const loadTracks = useLibraryStore((state) => state.loadTracks);
@@ -28,7 +29,7 @@ const App = () => {
   useKeyboardShortcuts();
 
   useEffect(() => {
-    const unsubscribe = window.sonetto.library.onScanProgress((payload) => {
+    const unsubscribe = bridge.library.onScanProgress((payload) => {
       setScanProgress(payload);
     });
     return () => {
@@ -47,13 +48,13 @@ const App = () => {
   );
 
   const handleAddFolder = useCallback(async () => {
-    const folders = await window.sonetto.settings.selectFolders();
+    const folders = await bridge.settings.selectFolders();
     if (folders.length) {
       const current = useSettingsStore.getState().monitoredFolders;
       const merged = [...new Set([...current, ...folders])];
       await updateSettings({ monitoredFolders: merged });
       setScanning(true);
-      const result = await window.sonetto.library.scan(folders);
+      const result = await bridge.library.scan(folders);
       setScanning(false);
       if (result.tracksImported > 0) {
         await loadTracks(query);

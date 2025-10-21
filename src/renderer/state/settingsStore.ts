@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { SettingsSnapshot, ThemePreference } from '../../common/types';
+import { bridge } from '../bridge';
 
 interface SettingsState extends SettingsSnapshot {
   initialized: boolean;
@@ -14,15 +15,15 @@ export const useSettingsStore = create<SettingsState>((set, _get) => ({
   monitoredFolders: [],
   initialized: false,
   load: async () => {
-    const settings = await window.sonetto.settings.getSettings();
-    set({ ...settings, initialized: true });
+    const settings = await bridge.settings.getSettings();
+    set((state) => ({ ...state, ...settings, initialized: true }));
   },
   update: async (payload) => {
-    const updated = await window.sonetto.settings.updateSettings(payload);
-    set(updated);
+    const updated = await bridge.settings.updateSettings(payload);
+    set((state) => ({ ...state, ...updated }));
   },
   setTheme: async (theme) => {
-    const updated = await window.sonetto.settings.updateSettings({ theme });
-    set(updated);
+    const updated = await bridge.settings.updateSettings({ theme });
+    set((state) => ({ ...state, ...updated }));
   }
 }));

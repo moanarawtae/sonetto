@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSettingsStore } from '../state/settingsStore';
 import { useLibraryStore } from '../state/libraryStore';
+import { bridge } from '../bridge';
 
 export const SettingsView = () => {
   const { monitoredFolders, hideUnsupported, update, load } = useSettingsStore();
@@ -11,7 +12,7 @@ export const SettingsView = () => {
   }, [load]);
 
   const handleFolderSelect = async () => {
-    const folders = await window.sonetto.settings.selectFolders();
+    const folders = await bridge.settings.selectFolders();
     if (folders.length) {
       await update({ monitoredFolders: [...new Set([...monitoredFolders, ...folders])] });
     }
@@ -22,7 +23,7 @@ export const SettingsView = () => {
       return;
     }
     setScanning(true);
-    await window.sonetto.library.scan(monitoredFolders);
+    await bridge.library.scan(monitoredFolders);
     setScanning(false);
   };
 

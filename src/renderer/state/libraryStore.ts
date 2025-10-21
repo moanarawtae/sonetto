@@ -8,6 +8,7 @@ import type {
   TrackListQuery,
   TrackRecord
 } from '../../common/types';
+import { bridge } from '../bridge';
 
 type ViewMode = 'albums' | 'artists' | 'tracks' | 'playlists';
 
@@ -43,19 +44,19 @@ export const useLibraryStore = create<LibraryState>((set) => ({
   view: 'tracks',
   loadTracks: async (query) => {
     set({ loading: true, query });
-    const result = (await window.sonetto.library.fetchTracks(query)) as PaginatedResult<TrackRecord>;
+    const result = (await bridge.library.fetchTracks(query)) as PaginatedResult<TrackRecord>;
     set({ tracks: result.items, totalTracks: result.total, loading: false });
   },
   loadAlbums: async (search) => {
-    const albums = await window.sonetto.library.fetchAlbums(search);
+    const albums = await bridge.library.fetchAlbums(search);
     set({ albums });
   },
   loadArtists: async (search) => {
-    const artists = await window.sonetto.library.fetchArtists(search);
+    const artists = await bridge.library.fetchArtists(search);
     set({ artists });
   },
   loadPlaylists: async () => {
-    const playlists = await window.sonetto.library.fetchPlaylists();
+    const playlists = await bridge.library.fetchPlaylists();
     set({ playlists });
   },
   setView: (view) => set({ view }),
