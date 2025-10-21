@@ -1,15 +1,22 @@
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme } from 'electron';
+import { app, BrowserWindow, nativeTheme } from 'electron';
+import { registerLibraryHandlers } from './ipc/libraryHandlers';
+import { registerPlayerHandlers } from './ipc/playerHandlers';
+import { startWatching } from './services/folderWatcher';
+import { getDatabase, listFolders } from './services/database';
+import { loadSettings } from './services/settingsStore';
+import { log } from './services/logger';
+
+const isDevelopment = process.env.VITE_DEV_SERVER_URL !== undefined;
 
 const createWindow = async () => {
-  const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
-    minWidth: 960,
-    minHeight: 640,
+  const window = new BrowserWindow({
+    width: 1320,
+    height: 840,
+    minWidth: 1024,
+    minHeight: 700,
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#020617' : '#f8fafc',
-    show: false,
+    title: 'Sonetto',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
@@ -18,65 +25,53 @@ const createWindow = async () => {
     }
   });
 
-  if (process.env.VITE_DEV_SERVER_URL) {
-    await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
+  if (isDevelopment && process.env.VITE_DEV_SERVER_URL) {
+    await window.loadURL(process.env.VITE_DEV_SERVER_URL);
+    window.webContents.openDevTools({ mode: 'detach' });
   } else {
-    const rendererPath = path.join(app.getAppPath(), 'dist/renderer/index.html');
-    await mainWindow.loadFile(rendererPath);
+    await window.loadFile(path.join(app.getAppPath(), 'dist/renderer/index.html'));
   }
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-  });
+  return window;
 };
 
-const registerIpcHandlers = () => {
-  ipcMain.handle('dialog:select-audio', async () => {
-    const result = await dialog.showOpenDialog({
-      properties: ['openFile'],
-      filters: [
-        {
-          name: 'Áudio',
-          extensions: ['mp3', 'm4a', 'aac', 'ogg', 'wav', 'flac']
-        }
-      ]
-    });
+const bootstrap = async () => {
+  await app.whenReady();
+  getDatabase();
+  registerLibraryHandlers();
+  registerPlayerHandlers();
 
-    if (result.canceled || result.filePaths.length === 0) {
-      return undefined;
-    }
+  const settings = loadSettings();
+  if (settings.theme !== 'system') {
+    nativeTheme.themeSource = settings.theme;
+  }
 
-    const filePath = result.filePaths[0];
-    return pathToFileURL(filePath).toString();
+  const win = await createWindow();
+  win.once('ready-to-show', () => {
+    win.show();
   });
 
-  ipcMain.handle('theme:get', () => {
-    const theme = nativeTheme.themeSource ?? 'system';
-    if (theme === 'system') {
-      return nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
-    }
-    return theme;
-  });
+  const folders = listFolders().map((folder) => folder.path);
+  if (folders.length) {
+    startWatching(folders);
+  }
 
-  ipcMain.on('theme:set', (_, theme: 'light' | 'dark') => {
-    nativeTheme.themeSource = theme;
-  });
-};
-
-app.whenReady().then(() => {
-  registerIpcHandlers();
-  void createWindow();
-
-  app.on('activate', () => {
+  app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      void createWindow();
+      await createWindow();
     }
   });
-});
+};
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+bootstrap().catch((error) => {
+  log.error(
+    'Failed to bootstrap app: %s',
+    (error as Error).stack ?? (error as Error).message
+  );
 });
