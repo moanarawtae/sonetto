@@ -11,7 +11,7 @@ const createWindow = async () => {
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#020617' : '#f8fafc',
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
       spellcheck: false

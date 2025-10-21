@@ -1,7 +1,3 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { exposeBridge } from './bridge';
 
-contextBridge.exposeInMainWorld('sonetto', {
-  selectAudioFile: () => ipcRenderer.invoke('dialog:select-audio'),
-  toggleTheme: (theme: 'light' | 'dark') => ipcRenderer.send('theme:set', theme),
-  getTheme: () => ipcRenderer.invoke('theme:get')
-});
+exposeBridge();
