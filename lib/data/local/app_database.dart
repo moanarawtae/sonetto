@@ -14,6 +14,7 @@ import '../../core/models/user_settings.dart';
 
 part 'app_database.g.dart';
 
+@DataClassName('TrackRow')
 class Tracks extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
@@ -30,6 +31,7 @@ class Tracks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@DataClassName('PlaylistRow')
 class Playlists extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -41,6 +43,7 @@ class Playlists extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@DataClassName('PlaylistItemRow')
 class PlaylistItems extends Table {
   TextColumn get id => text()();
   TextColumn get playlistId => text()();

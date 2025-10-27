@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/playlist.dart';
-import '../../core/models/track.dart';
 import '../../data/repositories/track_repository.dart';
 import '../../services/audio/player_service.dart';
 import 'playlist_detail_controller.dart';
@@ -45,6 +44,7 @@ class PlaylistDetailPage extends ConsumerWidget {
 
   Future<void> _showAddTrackSheet(BuildContext context, WidgetRef ref, Playlist playlist) async {
     final tracks = await ref.read(trackRepositoryProvider).getLocalTracks();
+    if (!context.mounted) return;
     await showModalBottomSheet<void>(
       context: context,
       builder: (context) => ListView.builder(

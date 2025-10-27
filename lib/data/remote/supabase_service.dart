@@ -22,7 +22,11 @@ class SupabaseService {
         (event) => event.session == null ? AuthStatus.signedOut : AuthStatus.signedIn,
       );
 
-  RealtimeChannel subscribeTable(String table, {required String userId, void Function(PostgresChangePayload)? onChange}) {
+  RealtimeChannel subscribeTable(
+    String table, {
+    required String userId,
+    required void Function(PostgresChangePayload) onChange,
+  }) {
     final channel = _client.channel('public:$table:user:$userId');
     channel.onPostgresChanges(
       event: PostgresChangeEvent.all,

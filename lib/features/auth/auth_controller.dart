@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../services/sync/sync_service.dart';
+import '../../data/remote/supabase_service.dart';
 
 enum AuthStatusState { idle, loading, success, error }
 

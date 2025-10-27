@@ -215,7 +215,7 @@ class SyncService {
   }
 
   Future<void> _handleTrackChange(PostgresChangePayload payload) async {
-    final record = payload.newRecord ?? payload.oldRecord;
+    final record = _recordForEvent(payload);
     if (record == null) return;
     final track = Track.fromJson(Map<String, dynamic>.from(record));
     switch (payload.eventType) {
@@ -226,11 +226,13 @@ class SyncService {
       case PostgresChangeEvent.delete:
         await _tracks.deleteLocal(track.id);
         break;
+      case PostgresChangeEvent.all:
+        break;
     }
   }
 
   Future<void> _handlePlaylistChange(PostgresChangePayload payload) async {
-    final record = payload.newRecord ?? payload.oldRecord;
+    final record = _recordForEvent(payload);
     if (record == null) return;
     final playlist = Playlist.fromJson(Map<String, dynamic>.from(record));
     switch (payload.eventType) {
@@ -241,11 +243,13 @@ class SyncService {
       case PostgresChangeEvent.delete:
         await _playlists.deleteLocalPlaylist(playlist.id);
         break;
+      case PostgresChangeEvent.all:
+        break;
     }
   }
 
   Future<void> _handlePlaylistItemChange(PostgresChangePayload payload) async {
-    final record = payload.newRecord ?? payload.oldRecord;
+    final record = _recordForEvent(payload);
     if (record == null) return;
     final item = PlaylistItem.fromJson(Map<String, dynamic>.from(record));
     switch (payload.eventType) {
@@ -256,11 +260,13 @@ class SyncService {
       case PostgresChangeEvent.delete:
         await _playlists.deleteLocalItem(item.id);
         break;
+      case PostgresChangeEvent.all:
+        break;
     }
   }
 
   Future<void> _handleSettingsChange(PostgresChangePayload payload) async {
-    final record = payload.newRecord ?? payload.oldRecord;
+    final record = _recordForEvent(payload);
     if (record == null) return;
     final settings = UserSettings.fromJson(Map<String, dynamic>.from(record));
     switch (payload.eventType) {
@@ -269,6 +275,8 @@ class SyncService {
         await _settings.saveLocal(settings);
         break;
       case PostgresChangeEvent.delete:
+        break;
+      case PostgresChangeEvent.all:
         break;
     }
   }
@@ -282,6 +290,19 @@ class SyncService {
       await channel.unsubscribe();
     }
     _channels.clear();
+  }
+
+  Map<String, dynamic>? _recordForEvent(PostgresChangePayload payload) {
+    switch (payload.eventType) {
+      case PostgresChangeEvent.delete:
+        return payload.oldRecord.isEmpty ? null : payload.oldRecord;
+      case PostgresChangeEvent.all:
+        if (payload.newRecord.isNotEmpty) return payload.newRecord;
+        return payload.oldRecord.isEmpty ? null : payload.oldRecord;
+      case PostgresChangeEvent.insert:
+      case PostgresChangeEvent.update:
+        return payload.newRecord.isEmpty ? null : payload.newRecord;
+    }
   }
 }
 

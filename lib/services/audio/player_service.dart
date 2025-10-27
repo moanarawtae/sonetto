@@ -6,9 +6,8 @@ import '../../core/models/track.dart';
 import '../../data/repositories/settings_repository.dart';
 
 class PlayerService {
-  PlayerService(this._ref, this._player, this._settingsRepository);
+  PlayerService(this._player, this._settingsRepository);
 
-  final Ref _ref;
   final AudioPlayer _player;
   final SettingsRepository _settingsRepository;
 
@@ -18,10 +17,6 @@ class PlayerService {
     final settings = await _settingsRepository.loadLocal();
     if (settings != null) {
       await _player.setVolume(settings.normalizeVolume ? 0.9 : 1);
-      _player.setCrossFadeEnabled(settings.crossfadeMs > 0);
-      if (settings.crossfadeMs > 0) {
-        _player.setCrossFadeDuration(Duration(milliseconds: settings.crossfadeMs));
-      }
     }
   }
 
@@ -79,7 +74,6 @@ final audioPlayerProvider = Provider<AudioPlayer>((ref) {
 
 final playerServiceProvider = Provider<PlayerService>((ref) {
   final service = PlayerService(
-    ref,
     ref.watch(audioPlayerProvider),
     ref.watch(settingsRepositoryProvider),
   );

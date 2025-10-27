@@ -17,7 +17,7 @@ class SettingsRepository {
   Future<UserSettings?> fetchRemote() async {
     final result = await _supabase.client.from('settings').select().maybeSingle();
     if (result == null) return null;
-    return UserSettings.fromJson(result as Map<String, dynamic>);
+    return UserSettings.fromJson(Map<String, dynamic>.from(result));
   }
 
   Future<void> upsertRemote(UserSettings settings) async {

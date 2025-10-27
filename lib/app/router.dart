@@ -23,10 +23,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: syncReady,
     redirect: (context, state) {
       final authenticated = ref.read(syncServiceProvider).isAuthenticated;
-      if (!authenticated && state.location != '/auth') {
+      final currentPath = state.uri.path;
+      if (!authenticated && currentPath != '/auth') {
         return '/auth';
       }
-      if (authenticated && state.location == '/auth') {
+      if (authenticated && currentPath == '/auth') {
         return '/library';
       }
       return null;
