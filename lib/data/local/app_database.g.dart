@@ -46,6 +46,12 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, TrackRow> {
   late final GeneratedColumn<String> artworkUrl = GeneratedColumn<String>(
       'artwork_url', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localPathMeta =
+      const VerificationMeta('localPath');
+  @override
+  late final GeneratedColumn<String> localPath = GeneratedColumn<String>(
+      'local_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -72,6 +78,7 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, TrackRow> {
         durationMs,
         sourceUrl,
         artworkUrl,
+        localPath,
         createdAt,
         updatedAt,
         userId
@@ -129,6 +136,10 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, TrackRow> {
           artworkUrl.isAcceptableOrUnknown(
               data['artwork_url']!, _artworkUrlMeta));
     }
+    if (data.containsKey('local_path')) {
+      context.handle(_localPathMeta,
+          localPath.isAcceptableOrUnknown(data['local_path']!, _localPathMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -170,6 +181,8 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, TrackRow> {
           .read(DriftSqlType.string, data['${effectivePrefix}source_url'])!,
       artworkUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}artwork_url']),
+      localPath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}local_path']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -193,6 +206,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
   final int durationMs;
   final String sourceUrl;
   final String? artworkUrl;
+  final String? localPath;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String userId;
@@ -204,6 +218,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
       required this.durationMs,
       required this.sourceUrl,
       this.artworkUrl,
+      this.localPath,
       required this.createdAt,
       required this.updatedAt,
       required this.userId});
@@ -218,6 +233,9 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
     map['source_url'] = Variable<String>(sourceUrl);
     if (!nullToAbsent || artworkUrl != null) {
       map['artwork_url'] = Variable<String>(artworkUrl);
+    }
+    if (!nullToAbsent || localPath != null) {
+      map['local_path'] = Variable<String>(localPath);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -236,6 +254,9 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
       artworkUrl: artworkUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(artworkUrl),
+      localPath: localPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localPath),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       userId: Value(userId),
@@ -253,6 +274,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
       durationMs: serializer.fromJson<int>(json['durationMs']),
       sourceUrl: serializer.fromJson<String>(json['sourceUrl']),
       artworkUrl: serializer.fromJson<String?>(json['artworkUrl']),
+      localPath: serializer.fromJson<String?>(json['localPath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       userId: serializer.fromJson<String>(json['userId']),
@@ -269,6 +291,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
       'durationMs': serializer.toJson<int>(durationMs),
       'sourceUrl': serializer.toJson<String>(sourceUrl),
       'artworkUrl': serializer.toJson<String?>(artworkUrl),
+      'localPath': serializer.toJson<String?>(localPath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'userId': serializer.toJson<String>(userId),
@@ -283,6 +306,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
           int? durationMs,
           String? sourceUrl,
           Value<String?> artworkUrl = const Value.absent(),
+          Value<String?> localPath = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt,
           String? userId}) =>
@@ -294,6 +318,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
         durationMs: durationMs ?? this.durationMs,
         sourceUrl: sourceUrl ?? this.sourceUrl,
         artworkUrl: artworkUrl.present ? artworkUrl.value : this.artworkUrl,
+        localPath: localPath.present ? localPath.value : this.localPath,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         userId: userId ?? this.userId,
@@ -309,6 +334,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
       artworkUrl:
           data.artworkUrl.present ? data.artworkUrl.value : this.artworkUrl,
+      localPath: data.localPath.present ? data.localPath.value : this.localPath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       userId: data.userId.present ? data.userId.value : this.userId,
@@ -325,6 +351,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
           ..write('durationMs: $durationMs, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('artworkUrl: $artworkUrl, ')
+          ..write('localPath: $localPath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('userId: $userId')
@@ -334,7 +361,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
 
   @override
   int get hashCode => Object.hash(id, title, artist, album, durationMs,
-      sourceUrl, artworkUrl, createdAt, updatedAt, userId);
+      sourceUrl, artworkUrl, localPath, createdAt, updatedAt, userId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -346,6 +373,7 @@ class TrackRow extends DataClass implements Insertable<TrackRow> {
           other.durationMs == this.durationMs &&
           other.sourceUrl == this.sourceUrl &&
           other.artworkUrl == this.artworkUrl &&
+          other.localPath == this.localPath &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.userId == this.userId);
@@ -359,6 +387,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
   final Value<int> durationMs;
   final Value<String> sourceUrl;
   final Value<String?> artworkUrl;
+  final Value<String?> localPath;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String> userId;
@@ -371,6 +400,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
     this.durationMs = const Value.absent(),
     this.sourceUrl = const Value.absent(),
     this.artworkUrl = const Value.absent(),
+    this.localPath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.userId = const Value.absent(),
@@ -384,6 +414,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
     required int durationMs,
     required String sourceUrl,
     this.artworkUrl = const Value.absent(),
+    this.localPath = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     required String userId,
@@ -405,6 +436,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
     Expression<int>? durationMs,
     Expression<String>? sourceUrl,
     Expression<String>? artworkUrl,
+    Expression<String>? localPath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? userId,
@@ -418,6 +450,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
       if (durationMs != null) 'duration_ms': durationMs,
       if (sourceUrl != null) 'source_url': sourceUrl,
       if (artworkUrl != null) 'artwork_url': artworkUrl,
+      if (localPath != null) 'local_path': localPath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (userId != null) 'user_id': userId,
@@ -433,6 +466,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
       Value<int>? durationMs,
       Value<String>? sourceUrl,
       Value<String?>? artworkUrl,
+      Value<String?>? localPath,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<String>? userId,
@@ -445,6 +479,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
       durationMs: durationMs ?? this.durationMs,
       sourceUrl: sourceUrl ?? this.sourceUrl,
       artworkUrl: artworkUrl ?? this.artworkUrl,
+      localPath: localPath ?? this.localPath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       userId: userId ?? this.userId,
@@ -476,6 +511,9 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
     if (artworkUrl.present) {
       map['artwork_url'] = Variable<String>(artworkUrl.value);
     }
+    if (localPath.present) {
+      map['local_path'] = Variable<String>(localPath.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -501,6 +539,7 @@ class TracksCompanion extends UpdateCompanion<TrackRow> {
           ..write('durationMs: $durationMs, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('artworkUrl: $artworkUrl, ')
+          ..write('localPath: $localPath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('userId: $userId, ')
@@ -1580,6 +1619,7 @@ typedef $$TracksTableCreateCompanionBuilder = TracksCompanion Function({
   required int durationMs,
   required String sourceUrl,
   Value<String?> artworkUrl,
+  Value<String?> localPath,
   required DateTime createdAt,
   required DateTime updatedAt,
   required String userId,
@@ -1593,6 +1633,7 @@ typedef $$TracksTableUpdateCompanionBuilder = TracksCompanion Function({
   Value<int> durationMs,
   Value<String> sourceUrl,
   Value<String?> artworkUrl,
+  Value<String?> localPath,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<String> userId,
@@ -1628,6 +1669,9 @@ class $$TracksTableFilterComposer
 
   ColumnFilters<String> get artworkUrl => $composableBuilder(
       column: $table.artworkUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localPath => $composableBuilder(
+      column: $table.localPath, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -1669,6 +1713,9 @@ class $$TracksTableOrderingComposer
   ColumnOrderings<String> get artworkUrl => $composableBuilder(
       column: $table.artworkUrl, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get localPath => $composableBuilder(
+      column: $table.localPath, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -1708,6 +1755,9 @@ class $$TracksTableAnnotationComposer
 
   GeneratedColumn<String> get artworkUrl => $composableBuilder(
       column: $table.artworkUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get localPath =>
+      $composableBuilder(column: $table.localPath, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1749,6 +1799,7 @@ class $$TracksTableTableManager extends RootTableManager<
             Value<int> durationMs = const Value.absent(),
             Value<String> sourceUrl = const Value.absent(),
             Value<String?> artworkUrl = const Value.absent(),
+            Value<String?> localPath = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<String> userId = const Value.absent(),
@@ -1762,6 +1813,7 @@ class $$TracksTableTableManager extends RootTableManager<
             durationMs: durationMs,
             sourceUrl: sourceUrl,
             artworkUrl: artworkUrl,
+            localPath: localPath,
             createdAt: createdAt,
             updatedAt: updatedAt,
             userId: userId,
@@ -1775,6 +1827,7 @@ class $$TracksTableTableManager extends RootTableManager<
             required int durationMs,
             required String sourceUrl,
             Value<String?> artworkUrl = const Value.absent(),
+            Value<String?> localPath = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             required String userId,
@@ -1788,6 +1841,7 @@ class $$TracksTableTableManager extends RootTableManager<
             durationMs: durationMs,
             sourceUrl: sourceUrl,
             artworkUrl: artworkUrl,
+            localPath: localPath,
             createdAt: createdAt,
             updatedAt: updatedAt,
             userId: userId,

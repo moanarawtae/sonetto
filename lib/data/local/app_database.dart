@@ -23,6 +23,7 @@ class Tracks extends Table {
   IntColumn get durationMs => integer()();
   TextColumn get sourceUrl => text()();
   TextColumn get artworkUrl => text().nullable()();
+  TextColumn get localPath => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   TextColumn get userId => text()();
@@ -74,7 +75,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (migrator, from, to) async {
+          if (from < 2) {
+            await migrator.addColumn(tracks, tracks.localPath);
+          }
+        },
+      );
 
   Future<void> replaceTrack(Track track) async {
     await into(tracks).insertOnConflictUpdate(_trackToCompanion(track));
@@ -107,6 +117,16 @@ class AppDatabase extends _$AppDatabase {
   Future<Track?> getTrackById(String id) async {
     final row = await (select(tracks)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
     return row == null ? null : _trackFromRow(row);
+  }
+
+  Stream<List<Track>> watchTracks(String query) {
+    final selection = select(tracks)
+      ..orderBy([(tbl) => OrderingTerm.asc(tbl.title)]);
+    if (query.isNotEmpty) {
+      final pattern = '%$query%';
+      selection.where((tbl) => tbl.title.like(pattern) | tbl.artist.like(pattern));
+    }
+    return selection.watch().map((rows) => rows.map(_trackFromRow).toList());
   }
 
   Future<void> replacePlaylist(Playlist playlist) async {
@@ -167,6 +187,7 @@ class AppDatabase extends _$AppDatabase {
         durationMs: Value(track.durationMs),
         sourceUrl: Value(track.sourceUrl),
         artworkUrl: Value(track.artworkUrl),
+        localPath: Value(track.localPath),
         createdAt: Value(track.createdAt),
         updatedAt: Value(track.updatedAt),
         userId: Value(track.userId),
@@ -180,6 +201,7 @@ class AppDatabase extends _$AppDatabase {
         durationMs: row.durationMs,
         sourceUrl: row.sourceUrl,
         artworkUrl: row.artworkUrl,
+        localPath: row.localPath,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         userId: row.userId,

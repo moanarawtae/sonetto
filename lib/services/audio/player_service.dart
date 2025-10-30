@@ -29,7 +29,9 @@ class PlayerService {
     final sources = tracks
         .map(
           (track) => AudioSource.uri(
-            Uri.parse(track.sourceUrl),
+            track.localPath != null && track.localPath!.isNotEmpty
+                ? Uri.file(track.localPath!)
+                : Uri.parse(track.sourceUrl),
             tag: track,
           ),
         )

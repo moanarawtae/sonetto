@@ -27,6 +27,8 @@ mixin _$Track {
   int get durationMs => throw _privateConstructorUsedError;
   String get sourceUrl => throw _privateConstructorUsedError;
   String? get artworkUrl => throw _privateConstructorUsedError;
+  @JsonKey(includeIfNull: false)
+  String? get localPath => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
@@ -53,6 +55,7 @@ abstract class $TrackCopyWith<$Res> {
       int durationMs,
       String sourceUrl,
       String? artworkUrl,
+      @JsonKey(includeIfNull: false) String? localPath,
       DateTime createdAt,
       DateTime updatedAt,
       String userId});
@@ -80,6 +83,7 @@ class _$TrackCopyWithImpl<$Res, $Val extends Track>
     Object? durationMs = null,
     Object? sourceUrl = null,
     Object? artworkUrl = freezed,
+    Object? localPath = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? userId = null,
@@ -113,6 +117,10 @@ class _$TrackCopyWithImpl<$Res, $Val extends Track>
           ? _value.artworkUrl
           : artworkUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      localPath: freezed == localPath
+          ? _value.localPath
+          : localPath // ignore: cast_nullable_to_non_nullable
+              as String?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -144,6 +152,7 @@ abstract class _$$TrackImplCopyWith<$Res> implements $TrackCopyWith<$Res> {
       int durationMs,
       String sourceUrl,
       String? artworkUrl,
+      @JsonKey(includeIfNull: false) String? localPath,
       DateTime createdAt,
       DateTime updatedAt,
       String userId});
@@ -169,6 +178,7 @@ class __$$TrackImplCopyWithImpl<$Res>
     Object? durationMs = null,
     Object? sourceUrl = null,
     Object? artworkUrl = freezed,
+    Object? localPath = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? userId = null,
@@ -202,6 +212,10 @@ class __$$TrackImplCopyWithImpl<$Res>
           ? _value.artworkUrl
           : artworkUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      localPath: freezed == localPath
+          ? _value.localPath
+          : localPath // ignore: cast_nullable_to_non_nullable
+              as String?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -229,6 +243,7 @@ class _$TrackImpl implements _Track {
       required this.durationMs,
       required this.sourceUrl,
       this.artworkUrl,
+      @JsonKey(includeIfNull: false) this.localPath,
       required this.createdAt,
       required this.updatedAt,
       required this.userId});
@@ -251,6 +266,9 @@ class _$TrackImpl implements _Track {
   @override
   final String? artworkUrl;
   @override
+  @JsonKey(includeIfNull: false)
+  final String? localPath;
+  @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
@@ -259,7 +277,7 @@ class _$TrackImpl implements _Track {
 
   @override
   String toString() {
-    return 'Track(id: $id, title: $title, artist: $artist, album: $album, durationMs: $durationMs, sourceUrl: $sourceUrl, artworkUrl: $artworkUrl, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
+    return 'Track(id: $id, title: $title, artist: $artist, album: $album, durationMs: $durationMs, sourceUrl: $sourceUrl, artworkUrl: $artworkUrl, localPath: $localPath, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
   }
 
   @override
@@ -277,6 +295,8 @@ class _$TrackImpl implements _Track {
                 other.sourceUrl == sourceUrl) &&
             (identical(other.artworkUrl, artworkUrl) ||
                 other.artworkUrl == artworkUrl) &&
+            (identical(other.localPath, localPath) ||
+                other.localPath == localPath) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -286,8 +306,19 @@ class _$TrackImpl implements _Track {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, artist, album,
-      durationMs, sourceUrl, artworkUrl, createdAt, updatedAt, userId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      artist,
+      album,
+      durationMs,
+      sourceUrl,
+      artworkUrl,
+      localPath,
+      createdAt,
+      updatedAt,
+      userId);
 
   /// Create a copy of Track
   /// with the given fields replaced by the non-null parameter values.
@@ -314,6 +345,7 @@ abstract class _Track implements Track {
       required final int durationMs,
       required final String sourceUrl,
       final String? artworkUrl,
+      @JsonKey(includeIfNull: false) final String? localPath,
       required final DateTime createdAt,
       required final DateTime updatedAt,
       required final String userId}) = _$TrackImpl;
@@ -334,6 +366,9 @@ abstract class _Track implements Track {
   String get sourceUrl;
   @override
   String? get artworkUrl;
+  @override
+  @JsonKey(includeIfNull: false)
+  String? get localPath;
   @override
   DateTime get createdAt;
   @override

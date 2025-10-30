@@ -92,7 +92,7 @@ class SyncService {
   }
 
   Future<void> deleteTrack(Track track) async {
-    await _tracks.deleteLocal(track.id);
+    await _tracks.deleteLocal(track.id, localPath: track.localPath);
     await _tracks.deleteRemote(track.id);
     _lastSync = DateTime.now().toUtc();
   }
@@ -224,7 +224,7 @@ class SyncService {
         await _tracks.saveLocalTracks([track]);
         break;
       case PostgresChangeEvent.delete:
-        await _tracks.deleteLocal(track.id);
+        await _tracks.deleteLocal(track.id, localPath: track.localPath);
         break;
       case PostgresChangeEvent.all:
         break;

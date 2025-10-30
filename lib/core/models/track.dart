@@ -13,6 +13,7 @@ class Track with _$Track {
     required int durationMs,
     required String sourceUrl,
     String? artworkUrl,
+    String? localPath,
     required DateTime createdAt,
     required DateTime updatedAt,
     required String userId,

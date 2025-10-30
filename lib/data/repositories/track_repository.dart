@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,14 +34,24 @@ class TrackRepository {
   Future<Track?> getTrack(String id) => _db.getTrackById(id);
 
   Future<void> upsertRemote(Track track) async {
-    await _supabase.client.from('tracks').upsert(track.toJson());
+    final payload = Map<String, dynamic>.from(track.toJson());
+    payload.remove('localPath');
+    await _supabase.client.from('tracks').upsert(payload);
   }
 
   Future<void> deleteRemote(String id) async {
     await _supabase.client.from('tracks').delete().eq('id', id);
   }
 
-  Future<void> deleteLocal(String id) => _db.deleteTrack(id);
+  Future<void> deleteLocal(String id, {String? localPath}) async {
+    if (localPath != null && localPath.isNotEmpty) {
+      final file = File(localPath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    }
+    await _db.deleteTrack(id);
+  }
 
   Future<List<Track>> searchLocal(String query) async {
     if (query.isEmpty) {
@@ -47,6 +59,10 @@ class TrackRepository {
     }
     return _db.searchTracks(query);
   }
+
+  Future<void> addLocalTrack(Track track) => _db.replaceTrack(track);
+
+  Stream<List<Track>> watchLocalTracks(String query) => _db.watchTracks(query);
 
   Track? newest(Iterable<Track> tracks) => tracks.sortedBy<DateTime>((t) => t.updatedAt).lastOrNull;
 }
