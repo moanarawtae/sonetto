@@ -12,63 +12,50 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:spotify/spotify.dart' as spotify;
 import 'package:uuid/uuid.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../../core/models/track.dart';
 import '../../data/repositories/track_repository.dart';
 import '../../data/remote/supabase_service.dart';
+import 'yt_dlp_service.dart';
 
 final importServiceProvider = Provider<ImportService>((ref) {
   final service = ImportService(
     ref.watch(trackRepositoryProvider),
     ref.watch(supabaseServiceProvider),
     const Uuid(),
+    ref.watch(ytDlpServiceProvider),
   );
   ref.onDispose(service.dispose);
   return service;
 });
 
 class ImportService {
-  ImportService(this._tracks, this._supabase, this._uuid) : _youtube = YoutubeExplode();
+  ImportService(this._tracks, this._supabase, this._uuid, this._ytDlp);
 
   final TrackRepository _tracks;
   final SupabaseService _supabase;
   final Uuid _uuid;
-  final YoutubeExplode _youtube;
-
-  bool _disposed = false;
+  final YtDlpService _ytDlp;
 
   Future<Track> importTrack(String url) async {
     if (_isSpotifyUrl(url)) {
       final metadata = await _fetchSpotifyMetadata(url);
-      final video = await _findYoutubeVideo('${metadata.title} ${metadata.artist}');
+      final video =
+          await _ytDlp.searchFirst('${metadata.title} ${metadata.artist}');
       return _downloadAndStore(video, metadata: metadata);
     }
 
     if (_isYoutubeUrl(url)) {
-      final videoId = VideoId.parseVideoId(url) ?? url;
-      final video = await _youtube.videos.get(videoId);
+      final video = await _ytDlp.getVideo(url);
       return _downloadAndStore(video);
     }
 
     throw UnsupportedError('URL não suportada: $url');
   }
 
-  Future<Track> _downloadAndStore(Video video, {TrackMetadata? metadata}) async {
-    final manifest = await _loadStreamManifest(video);
-
-    final audioStream = manifest.audioOnly.isNotEmpty
-        ? manifest.audioOnly.withHighestBitrate()
-        : (manifest.muxed.isNotEmpty ? manifest.muxed.withHighestBitrate() : null);
-    if (audioStream == null) {
-      throw StateError('Nenhum stream de áudio disponível para ${video.id.value}');
-    }
-    final tempDir = await getTemporaryDirectory();
-    final tempFile = File(p.join(tempDir.path, '${video.id.value}.${audioStream.container.name}'));
-    final audioDownload = _youtube.videos.streamsClient.get(audioStream);
-    final sink = tempFile.openWrite();
-    await audioDownload.pipe(sink);
-    await sink.close();
+  Future<Track> _downloadAndStore(YtDlpVideo video,
+      {TrackMetadata? metadata}) async {
+    final download = await _ytDlp.downloadBestAudio(video.url);
 
     final docsDir = await getApplicationDocumentsDirectory();
     final tracksDir = Directory(p.join(docsDir.path, 'tracks'));
@@ -77,27 +64,27 @@ class ImportService {
     }
     final outputPath = p.join(tracksDir.path, '${_uuid.v4()}.mp3');
 
-    final command = [
-      '-y',
-      '-i',
-      tempFile.path,
-      '-vn',
-      '-acodec',
-      'libmp3lame',
-      '-qscale:a',
-      '2',
-      outputPath,
-    ].map(_escapeArgument).join(' ');
+    try {
+      final command = [
+        '-y',
+        '-i',
+        download.file.path,
+        '-vn',
+        '-acodec',
+        'libmp3lame',
+        '-qscale:a',
+        '2',
+        outputPath,
+      ].map(_escapeArgument).join(' ');
 
-    final session = await FFmpegKit.execute(command);
-    final returnCode = await session.getReturnCode();
-    if (!ReturnCode.isSuccess(returnCode)) {
-      final fail = await session.getFailStackTrace();
-      throw Exception('Falha ao converter áudio: $fail');
-    }
-
-    if (await tempFile.exists()) {
-      await tempFile.delete();
+      final session = await FFmpegKit.execute(command);
+      final returnCode = await session.getReturnCode();
+      if (!ReturnCode.isSuccess(returnCode)) {
+        final fail = await session.getFailStackTrace();
+        throw Exception('Falha ao converter áudio: $fail');
+      }
+    } finally {
+      await download.cleanup();
     }
 
     final userId = _supabase.client.auth.currentUser?.id ?? 'local';
@@ -105,11 +92,13 @@ class ImportService {
     final track = Track(
       id: _uuid.v4(),
       title: metadata?.title ?? video.title,
-      artist: metadata?.artist ?? video.author,
-      album: metadata?.album ?? metadata?.artist ?? video.author,
+      artist: metadata?.artist ?? video.channel,
+      album: metadata?.album ?? metadata?.artist ?? video.channel,
       durationMs: metadata?.durationMs ?? video.duration?.inMilliseconds ?? 0,
-      sourceUrl: 'https://www.youtube.com/watch?v=${video.id.value}',
-      artworkUrl: metadata?.artworkUrl ?? video.thumbnails.standardResUrl,
+      sourceUrl: video.url.isNotEmpty
+          ? video.url
+          : 'https://www.youtube.com/watch?v=${video.id}',
+      artworkUrl: metadata?.artworkUrl ?? video.thumbnailUrl,
       localPath: outputPath,
       createdAt: now,
       updatedAt: now,
@@ -118,51 +107,6 @@ class ImportService {
 
     await _tracks.addLocalTrack(track);
     return track;
-  }
-
-  Future<StreamManifest> _loadStreamManifest(Video video) async {
-    final clients = [
-      YoutubeApiClient.ios,
-      YoutubeApiClient.androidMusic,
-      YoutubeApiClient.androidVr,
-    ];
-    final errors = <Object>[];
-
-    for (final client in clients) {
-      try {
-        final manifest = await _youtube.videos.streamsClient.getManifest(
-          video.id,
-          ytClients: [client],
-        );
-        final hasAudio = manifest.audioOnly.isNotEmpty || manifest.muxed.isNotEmpty;
-        if (hasAudio) {
-          return manifest;
-        }
-        errors.add(
-          StateError('Manifesto sem áudio com client ${client.payload['context']['client']['clientName']}'),
-        );
-      } on YoutubeExplodeException catch (e) {
-        errors.add(e);
-      } catch (e) {
-        errors.add(e);
-      }
-    }
-
-    if (errors.isNotEmpty) {
-      final reasons = errors.map((error) {
-        if (error case YoutubeExplodeException(:final message)) {
-          return message.trim();
-        }
-        return error.toString().trim();
-      }).where((message) => message.isNotEmpty).join(' | ');
-      throw StateError(
-        reasons.isEmpty
-            ? 'Não foi possível obter streams de áudio para ${video.id.value}'
-            : 'Não foi possível obter streams de áudio para ${video.id.value}: $reasons',
-      );
-    }
-
-    throw StateError('Não foi possível obter streams de áudio para ${video.id.value}');
   }
 
   Future<TrackMetadata> _fetchSpotifyMetadata(String url) async {
@@ -174,16 +118,20 @@ class ImportService {
     final clientId = dotenv.env['SPOTIFY_CLIENT_ID'];
     final clientSecret = dotenv.env['SPOTIFY_CLIENT_SECRET'];
     if (clientId == null || clientSecret == null) {
-      throw StateError('Configure SPOTIFY_CLIENT_ID e SPOTIFY_CLIENT_SECRET no arquivo .env');
+      throw StateError(
+          'Configure SPOTIFY_CLIENT_ID e SPOTIFY_CLIENT_SECRET no arquivo .env');
     }
 
     final credentials = spotify.SpotifyApiCredentials(clientId, clientSecret);
     final spotifyApi = spotify.SpotifyApi(credentials);
     final track = await spotifyApi.tracks.get(trackId);
 
-    final artistName = track.artists?.firstOrNull?.name ?? 'artista desconhecido';
+    final artistName =
+        track.artists?.firstOrNull?.name ?? 'artista desconhecido';
     final albumName = track.album?.name ?? 'álbum desconhecido';
-    final artworkUrl = track.album?.images?.isNotEmpty == true ? track.album!.images!.first.url : null;
+    final artworkUrl = track.album?.images?.isNotEmpty == true
+        ? track.album!.images!.first.url
+        : null;
 
     return TrackMetadata(
       title: track.name ?? 'faixa sem título',
@@ -194,23 +142,21 @@ class ImportService {
     );
   }
 
-  Future<Video> _findYoutubeVideo(String query) async {
-    final results = await _youtube.search.search(query);
-    final video = results.firstWhereOrNull((video) => video.duration != null) ?? results.firstOrNull;
-    if (video == null) {
-      throw StateError('Nenhum vídeo encontrado para "$query"');
-    }
-    return video;
-  }
-
   bool _isYoutubeUrl(String url) {
-    return VideoId.parseVideoId(url) != null || url.contains('youtube.com') || url.contains('youtu.be');
+    if (_isYoutubeVideoId(url)) {
+      return true;
+    }
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    final host = uri.host.toLowerCase();
+    return host.contains('youtube.com') || host.contains('youtu.be');
   }
 
   bool _isSpotifyUrl(String url) {
     final uri = Uri.tryParse(url);
     if (uri == null || uri.host != 'open.spotify.com') return false;
-    final segments = List<String>.from(uri.pathSegments.where((segment) => segment.isNotEmpty));
+    final segments = List<String>.from(
+        uri.pathSegments.where((segment) => segment.isNotEmpty));
     if (segments.isEmpty) return false;
     if (segments.first.startsWith('intl-')) {
       segments.removeAt(0);
@@ -221,7 +167,8 @@ class ImportService {
   String? _extractSpotifyTrackId(String url) {
     final uri = Uri.tryParse(url);
     if (uri == null || uri.host != 'open.spotify.com') return null;
-    final segments = List<String>.from(uri.pathSegments.where((segment) => segment.isNotEmpty));
+    final segments = List<String>.from(
+        uri.pathSegments.where((segment) => segment.isNotEmpty));
     if (segments.isEmpty) return null;
     if (segments.first.startsWith('intl-')) {
       segments.removeAt(0);
@@ -237,11 +184,12 @@ class ImportService {
     return input;
   }
 
-  Future<void> dispose() async {
-    if (_disposed) return;
-    _disposed = true;
-    _youtube.close();
+  bool _isYoutubeVideoId(String value) {
+    final regex = RegExp(r'^[a-zA-Z0-9_-]{11}$');
+    return regex.hasMatch(value);
   }
+
+  Future<void> dispose() async {}
 }
 
 class TrackMetadata {

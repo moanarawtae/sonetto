@@ -27,7 +27,6 @@ dependencies:
   path: ^1.9.0
   uuid: ^4.3.3
   collection: ^1.18.0
-  youtube_explode_dart: ^2.3.5
   spotify: ^0.13.7
   ffmpeg_kit_flutter_new: ^4.1.0
 
