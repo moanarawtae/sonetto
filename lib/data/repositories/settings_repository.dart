@@ -12,6 +12,8 @@ class SettingsRepository {
 
   Future<UserSettings?> loadLocal() => _db.loadSettings();
 
+  Stream<UserSettings?> watchLocal() => _db.watchSettings();
+
   Future<void> saveLocal(UserSettings settings) => _db.saveSettings(settings);
 
   Future<UserSettings?> fetchRemote() async {

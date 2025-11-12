@@ -6,31 +6,28 @@ part of 'track.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TrackImpl _$$TrackImplFromJson(Map<String, dynamic> json) => _$TrackImpl(
+_Track _$TrackFromJson(Map<String, dynamic> json) => _Track(
       id: json['id'] as String,
       title: json['title'] as String,
       artist: json['artist'] as String,
       album: json['album'] as String,
-      durationMs: (json['durationMs'] as num).toInt(),
-      sourceUrl: json['sourceUrl'] as String,
-      artworkUrl: json['artworkUrl'] as String?,
-      localPath: json['localPath'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      userId: json['userId'] as String,
+      durationMs: (json['duration_ms'] as num).toInt(),
+      sourceUrl: json['source_url'] as String,
+      artworkUrl: json['artwork_url'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+      userId: json['user_id'] as String,
     );
 
-Map<String, dynamic> _$$TrackImplToJson(_$TrackImpl instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$TrackToJson(_Track instance) => <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
       'artist': instance.artist,
       'album': instance.album,
-      'durationMs': instance.durationMs,
-      'sourceUrl': instance.sourceUrl,
-      'artworkUrl': instance.artworkUrl,
-      if (instance.localPath case final value?) 'localPath': value,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-      'userId': instance.userId,
+      'duration_ms': instance.durationMs,
+      'source_url': instance.sourceUrl,
+      'artwork_url': instance.artworkUrl,
+      'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt.toIso8601String(),
+      'user_id': instance.userId,
     };

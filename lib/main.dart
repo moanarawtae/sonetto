@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/router.dart';
 import 'core/env/env_config.dart';
+import 'services/audio/playback_tracker.dart';
 import 'services/sync/sync_service.dart';
 
 Future<void> main() async {
@@ -17,6 +18,7 @@ Future<void> main() async {
   );
   await Supabase.initialize(url: env.supabaseUrl, anonKey: env.supabaseAnonKey);
   await container.read(syncServiceProvider).initialize();
+  container.read(playbackTrackerProvider);
   runApp(UncontrolledProviderScope(container: container, child: const SonettoApp()));
 }
 

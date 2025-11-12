@@ -1271,6 +1271,28 @@ class $SettingsEntriesTable extends SettingsEntries
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(5000));
+  static const VerificationMeta _scrobbleToLastFmMeta =
+      const VerificationMeta('scrobbleToLastFm');
+  @override
+  late final GeneratedColumn<bool> scrobbleToLastFm = GeneratedColumn<bool>(
+      'scrobble_to_last_fm', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("scrobble_to_last_fm" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _lastFmSessionKeyMeta =
+      const VerificationMeta('lastFmSessionKey');
+  @override
+  late final GeneratedColumn<String> lastFmSessionKey = GeneratedColumn<String>(
+      'last_fm_session_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastFmUsernameMeta =
+      const VerificationMeta('lastFmUsername');
+  @override
+  late final GeneratedColumn<String> lastFmUsername = GeneratedColumn<String>(
+      'last_fm_username', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -1289,8 +1311,17 @@ class $SettingsEntriesTable extends SettingsEntries
       'user_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, normalizeVolume, crossfadeMs, createdAt, updatedAt, userId];
+  List<GeneratedColumn> get $columns => [
+        id,
+        normalizeVolume,
+        crossfadeMs,
+        scrobbleToLastFm,
+        lastFmSessionKey,
+        lastFmUsername,
+        createdAt,
+        updatedAt,
+        userId
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1317,6 +1348,24 @@ class $SettingsEntriesTable extends SettingsEntries
           _crossfadeMsMeta,
           crossfadeMs.isAcceptableOrUnknown(
               data['crossfade_ms']!, _crossfadeMsMeta));
+    }
+    if (data.containsKey('scrobble_to_last_fm')) {
+      context.handle(
+          _scrobbleToLastFmMeta,
+          scrobbleToLastFm.isAcceptableOrUnknown(
+              data['scrobble_to_last_fm']!, _scrobbleToLastFmMeta));
+    }
+    if (data.containsKey('last_fm_session_key')) {
+      context.handle(
+          _lastFmSessionKeyMeta,
+          lastFmSessionKey.isAcceptableOrUnknown(
+              data['last_fm_session_key']!, _lastFmSessionKeyMeta));
+    }
+    if (data.containsKey('last_fm_username')) {
+      context.handle(
+          _lastFmUsernameMeta,
+          lastFmUsername.isAcceptableOrUnknown(
+              data['last_fm_username']!, _lastFmUsernameMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -1351,6 +1400,12 @@ class $SettingsEntriesTable extends SettingsEntries
           .read(DriftSqlType.bool, data['${effectivePrefix}normalize_volume'])!,
       crossfadeMs: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}crossfade_ms'])!,
+      scrobbleToLastFm: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}scrobble_to_last_fm'])!,
+      lastFmSessionKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_fm_session_key']),
+      lastFmUsername: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_fm_username']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -1370,6 +1425,9 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
   final String id;
   final bool normalizeVolume;
   final int crossfadeMs;
+  final bool scrobbleToLastFm;
+  final String? lastFmSessionKey;
+  final String? lastFmUsername;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String userId;
@@ -1377,6 +1435,9 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
       {required this.id,
       required this.normalizeVolume,
       required this.crossfadeMs,
+      required this.scrobbleToLastFm,
+      this.lastFmSessionKey,
+      this.lastFmUsername,
       required this.createdAt,
       required this.updatedAt,
       required this.userId});
@@ -1386,6 +1447,13 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
     map['id'] = Variable<String>(id);
     map['normalize_volume'] = Variable<bool>(normalizeVolume);
     map['crossfade_ms'] = Variable<int>(crossfadeMs);
+    map['scrobble_to_last_fm'] = Variable<bool>(scrobbleToLastFm);
+    if (!nullToAbsent || lastFmSessionKey != null) {
+      map['last_fm_session_key'] = Variable<String>(lastFmSessionKey);
+    }
+    if (!nullToAbsent || lastFmUsername != null) {
+      map['last_fm_username'] = Variable<String>(lastFmUsername);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['user_id'] = Variable<String>(userId);
@@ -1397,6 +1465,13 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
       id: Value(id),
       normalizeVolume: Value(normalizeVolume),
       crossfadeMs: Value(crossfadeMs),
+      scrobbleToLastFm: Value(scrobbleToLastFm),
+      lastFmSessionKey: lastFmSessionKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastFmSessionKey),
+      lastFmUsername: lastFmUsername == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastFmUsername),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       userId: Value(userId),
@@ -1410,6 +1485,9 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
       id: serializer.fromJson<String>(json['id']),
       normalizeVolume: serializer.fromJson<bool>(json['normalizeVolume']),
       crossfadeMs: serializer.fromJson<int>(json['crossfadeMs']),
+      scrobbleToLastFm: serializer.fromJson<bool>(json['scrobbleToLastFm']),
+      lastFmSessionKey: serializer.fromJson<String?>(json['lastFmSessionKey']),
+      lastFmUsername: serializer.fromJson<String?>(json['lastFmUsername']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       userId: serializer.fromJson<String>(json['userId']),
@@ -1422,6 +1500,9 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
       'id': serializer.toJson<String>(id),
       'normalizeVolume': serializer.toJson<bool>(normalizeVolume),
       'crossfadeMs': serializer.toJson<int>(crossfadeMs),
+      'scrobbleToLastFm': serializer.toJson<bool>(scrobbleToLastFm),
+      'lastFmSessionKey': serializer.toJson<String?>(lastFmSessionKey),
+      'lastFmUsername': serializer.toJson<String?>(lastFmUsername),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'userId': serializer.toJson<String>(userId),
@@ -1432,6 +1513,9 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
           {String? id,
           bool? normalizeVolume,
           int? crossfadeMs,
+          bool? scrobbleToLastFm,
+          Value<String?> lastFmSessionKey = const Value.absent(),
+          Value<String?> lastFmUsername = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt,
           String? userId}) =>
@@ -1439,6 +1523,12 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
         id: id ?? this.id,
         normalizeVolume: normalizeVolume ?? this.normalizeVolume,
         crossfadeMs: crossfadeMs ?? this.crossfadeMs,
+        scrobbleToLastFm: scrobbleToLastFm ?? this.scrobbleToLastFm,
+        lastFmSessionKey: lastFmSessionKey.present
+            ? lastFmSessionKey.value
+            : this.lastFmSessionKey,
+        lastFmUsername:
+            lastFmUsername.present ? lastFmUsername.value : this.lastFmUsername,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         userId: userId ?? this.userId,
@@ -1451,6 +1541,15 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
           : this.normalizeVolume,
       crossfadeMs:
           data.crossfadeMs.present ? data.crossfadeMs.value : this.crossfadeMs,
+      scrobbleToLastFm: data.scrobbleToLastFm.present
+          ? data.scrobbleToLastFm.value
+          : this.scrobbleToLastFm,
+      lastFmSessionKey: data.lastFmSessionKey.present
+          ? data.lastFmSessionKey.value
+          : this.lastFmSessionKey,
+      lastFmUsername: data.lastFmUsername.present
+          ? data.lastFmUsername.value
+          : this.lastFmUsername,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       userId: data.userId.present ? data.userId.value : this.userId,
@@ -1463,6 +1562,9 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
           ..write('id: $id, ')
           ..write('normalizeVolume: $normalizeVolume, ')
           ..write('crossfadeMs: $crossfadeMs, ')
+          ..write('scrobbleToLastFm: $scrobbleToLastFm, ')
+          ..write('lastFmSessionKey: $lastFmSessionKey, ')
+          ..write('lastFmUsername: $lastFmUsername, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('userId: $userId')
@@ -1472,7 +1574,15 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
 
   @override
   int get hashCode => Object.hash(
-      id, normalizeVolume, crossfadeMs, createdAt, updatedAt, userId);
+      id,
+      normalizeVolume,
+      crossfadeMs,
+      scrobbleToLastFm,
+      lastFmSessionKey,
+      lastFmUsername,
+      createdAt,
+      updatedAt,
+      userId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1480,6 +1590,9 @@ class SettingsEntry extends DataClass implements Insertable<SettingsEntry> {
           other.id == this.id &&
           other.normalizeVolume == this.normalizeVolume &&
           other.crossfadeMs == this.crossfadeMs &&
+          other.scrobbleToLastFm == this.scrobbleToLastFm &&
+          other.lastFmSessionKey == this.lastFmSessionKey &&
+          other.lastFmUsername == this.lastFmUsername &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.userId == this.userId);
@@ -1489,6 +1602,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
   final Value<String> id;
   final Value<bool> normalizeVolume;
   final Value<int> crossfadeMs;
+  final Value<bool> scrobbleToLastFm;
+  final Value<String?> lastFmSessionKey;
+  final Value<String?> lastFmUsername;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String> userId;
@@ -1497,6 +1613,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
     this.id = const Value.absent(),
     this.normalizeVolume = const Value.absent(),
     this.crossfadeMs = const Value.absent(),
+    this.scrobbleToLastFm = const Value.absent(),
+    this.lastFmSessionKey = const Value.absent(),
+    this.lastFmUsername = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.userId = const Value.absent(),
@@ -1506,6 +1625,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
     required String id,
     this.normalizeVolume = const Value.absent(),
     this.crossfadeMs = const Value.absent(),
+    this.scrobbleToLastFm = const Value.absent(),
+    this.lastFmSessionKey = const Value.absent(),
+    this.lastFmUsername = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     required String userId,
@@ -1518,6 +1640,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
     Expression<String>? id,
     Expression<bool>? normalizeVolume,
     Expression<int>? crossfadeMs,
+    Expression<bool>? scrobbleToLastFm,
+    Expression<String>? lastFmSessionKey,
+    Expression<String>? lastFmUsername,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? userId,
@@ -1527,6 +1652,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
       if (id != null) 'id': id,
       if (normalizeVolume != null) 'normalize_volume': normalizeVolume,
       if (crossfadeMs != null) 'crossfade_ms': crossfadeMs,
+      if (scrobbleToLastFm != null) 'scrobble_to_last_fm': scrobbleToLastFm,
+      if (lastFmSessionKey != null) 'last_fm_session_key': lastFmSessionKey,
+      if (lastFmUsername != null) 'last_fm_username': lastFmUsername,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (userId != null) 'user_id': userId,
@@ -1538,6 +1666,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
       {Value<String>? id,
       Value<bool>? normalizeVolume,
       Value<int>? crossfadeMs,
+      Value<bool>? scrobbleToLastFm,
+      Value<String?>? lastFmSessionKey,
+      Value<String?>? lastFmUsername,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
       Value<String>? userId,
@@ -1546,6 +1677,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
       id: id ?? this.id,
       normalizeVolume: normalizeVolume ?? this.normalizeVolume,
       crossfadeMs: crossfadeMs ?? this.crossfadeMs,
+      scrobbleToLastFm: scrobbleToLastFm ?? this.scrobbleToLastFm,
+      lastFmSessionKey: lastFmSessionKey ?? this.lastFmSessionKey,
+      lastFmUsername: lastFmUsername ?? this.lastFmUsername,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       userId: userId ?? this.userId,
@@ -1564,6 +1698,15 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
     }
     if (crossfadeMs.present) {
       map['crossfade_ms'] = Variable<int>(crossfadeMs.value);
+    }
+    if (scrobbleToLastFm.present) {
+      map['scrobble_to_last_fm'] = Variable<bool>(scrobbleToLastFm.value);
+    }
+    if (lastFmSessionKey.present) {
+      map['last_fm_session_key'] = Variable<String>(lastFmSessionKey.value);
+    }
+    if (lastFmUsername.present) {
+      map['last_fm_username'] = Variable<String>(lastFmUsername.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -1586,6 +1729,9 @@ class SettingsEntriesCompanion extends UpdateCompanion<SettingsEntry> {
           ..write('id: $id, ')
           ..write('normalizeVolume: $normalizeVolume, ')
           ..write('crossfadeMs: $crossfadeMs, ')
+          ..write('scrobbleToLastFm: $scrobbleToLastFm, ')
+          ..write('lastFmSessionKey: $lastFmSessionKey, ')
+          ..write('lastFmUsername: $lastFmUsername, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('userId: $userId, ')
@@ -2239,6 +2385,9 @@ typedef $$SettingsEntriesTableCreateCompanionBuilder = SettingsEntriesCompanion
   required String id,
   Value<bool> normalizeVolume,
   Value<int> crossfadeMs,
+  Value<bool> scrobbleToLastFm,
+  Value<String?> lastFmSessionKey,
+  Value<String?> lastFmUsername,
   required DateTime createdAt,
   required DateTime updatedAt,
   required String userId,
@@ -2249,6 +2398,9 @@ typedef $$SettingsEntriesTableUpdateCompanionBuilder = SettingsEntriesCompanion
   Value<String> id,
   Value<bool> normalizeVolume,
   Value<int> crossfadeMs,
+  Value<bool> scrobbleToLastFm,
+  Value<String?> lastFmSessionKey,
+  Value<String?> lastFmUsername,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<String> userId,
@@ -2273,6 +2425,18 @@ class $$SettingsEntriesTableFilterComposer
 
   ColumnFilters<int> get crossfadeMs => $composableBuilder(
       column: $table.crossfadeMs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get scrobbleToLastFm => $composableBuilder(
+      column: $table.scrobbleToLastFm,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastFmSessionKey => $composableBuilder(
+      column: $table.lastFmSessionKey,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastFmUsername => $composableBuilder(
+      column: $table.lastFmUsername,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -2303,6 +2467,18 @@ class $$SettingsEntriesTableOrderingComposer
   ColumnOrderings<int> get crossfadeMs => $composableBuilder(
       column: $table.crossfadeMs, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get scrobbleToLastFm => $composableBuilder(
+      column: $table.scrobbleToLastFm,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastFmSessionKey => $composableBuilder(
+      column: $table.lastFmSessionKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastFmUsername => $composableBuilder(
+      column: $table.lastFmUsername,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -2330,6 +2506,15 @@ class $$SettingsEntriesTableAnnotationComposer
 
   GeneratedColumn<int> get crossfadeMs => $composableBuilder(
       column: $table.crossfadeMs, builder: (column) => column);
+
+  GeneratedColumn<bool> get scrobbleToLastFm => $composableBuilder(
+      column: $table.scrobbleToLastFm, builder: (column) => column);
+
+  GeneratedColumn<String> get lastFmSessionKey => $composableBuilder(
+      column: $table.lastFmSessionKey, builder: (column) => column);
+
+  GeneratedColumn<String> get lastFmUsername => $composableBuilder(
+      column: $table.lastFmUsername, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2371,6 +2556,9 @@ class $$SettingsEntriesTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<bool> normalizeVolume = const Value.absent(),
             Value<int> crossfadeMs = const Value.absent(),
+            Value<bool> scrobbleToLastFm = const Value.absent(),
+            Value<String?> lastFmSessionKey = const Value.absent(),
+            Value<String?> lastFmUsername = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<String> userId = const Value.absent(),
@@ -2380,6 +2568,9 @@ class $$SettingsEntriesTableTableManager extends RootTableManager<
             id: id,
             normalizeVolume: normalizeVolume,
             crossfadeMs: crossfadeMs,
+            scrobbleToLastFm: scrobbleToLastFm,
+            lastFmSessionKey: lastFmSessionKey,
+            lastFmUsername: lastFmUsername,
             createdAt: createdAt,
             updatedAt: updatedAt,
             userId: userId,
@@ -2389,6 +2580,9 @@ class $$SettingsEntriesTableTableManager extends RootTableManager<
             required String id,
             Value<bool> normalizeVolume = const Value.absent(),
             Value<int> crossfadeMs = const Value.absent(),
+            Value<bool> scrobbleToLastFm = const Value.absent(),
+            Value<String?> lastFmSessionKey = const Value.absent(),
+            Value<String?> lastFmUsername = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
             required String userId,
@@ -2398,6 +2592,9 @@ class $$SettingsEntriesTableTableManager extends RootTableManager<
             id: id,
             normalizeVolume: normalizeVolume,
             crossfadeMs: crossfadeMs,
+            scrobbleToLastFm: scrobbleToLastFm,
+            lastFmSessionKey: lastFmSessionKey,
+            lastFmUsername: lastFmUsername,
             createdAt: createdAt,
             updatedAt: updatedAt,
             userId: userId,

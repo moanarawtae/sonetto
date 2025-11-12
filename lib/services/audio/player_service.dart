@@ -10,6 +10,7 @@ class PlayerService {
 
   final AudioPlayer _player;
   final SettingsRepository _settingsRepository;
+  bool _hasLoadedQueue = false;
 
   Future<void> init() async {
     final session = await AudioSession.instance;
@@ -36,14 +37,16 @@ class PlayerService {
           ),
         )
         .toList();
+    // ignore: deprecated_member_use
     final playlist = ConcatenatingAudioSource(children: sources);
     await _player.setAudioSource(playlist);
+    _hasLoadedQueue = true;
   }
 
   Future<void> playTrack(Track track, {List<Track>? queue}) async {
     if (queue != null) {
       await loadTracks(queue);
-    } else if (_player.sequenceState == null) {
+    } else if (!_hasLoadedQueue) {
       await loadTracks([track]);
     }
     final index = queue?.indexWhere((t) => t.id == track.id) ?? 0;

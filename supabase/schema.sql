@@ -36,6 +36,9 @@ create table if not exists public.settings (
   user_id uuid not null references auth.users(id) on delete cascade,
   normalize_volume boolean not null default true,
   crossfade_ms int4 not null default 5000,
+  scrobble_to_lastfm boolean not null default false,
+  lastfm_session_key text,
+  lastfm_username text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

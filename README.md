@@ -9,7 +9,7 @@ Sonetto é um aplicativo pessoal de música com sincronização usando Supabase,
 
 ## Quickstart
 1. Instale Flutter 3.22 ou superior e execute `flutter pub get`.
-2. Copie `cp .env.example .env` e preencha os valores locais. **Não** commit este arquivo.
+2. Copie `cp .env.example .env` e preencha os valores locais. **Não** commit este arquivo. Para habilitar o scrobble do Last.fm, defina `LASTFM_API_KEY` e `LASTFM_API_SECRET`.
 3. Execute `flutter pub run build_runner build --delete-conflicting-outputs` para gerar os arquivos `freezed` e `drift`.
 4. Configure o Supabase: crie um projeto, copie `SUPABASE_URL` e `SUPABASE_ANON_KEY`, rode `supabase/schema.sql` e habilite realtime nas tabelas `tracks`, `playlists`, `playlist_items` e `settings`.
 5. Rode o app: `flutter run -d macos`, `flutter run -d linux`, ou abra o projeto iOS no Xcode (`ios/Runner.xcworkspace`).

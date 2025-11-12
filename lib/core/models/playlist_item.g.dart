@@ -6,24 +6,24 @@ part of 'playlist_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PlaylistItemImpl _$$PlaylistItemImplFromJson(Map<String, dynamic> json) =>
-    _$PlaylistItemImpl(
+_PlaylistItem _$PlaylistItemFromJson(Map<String, dynamic> json) =>
+    _PlaylistItem(
       id: json['id'] as String,
-      playlistId: json['playlistId'] as String,
-      trackId: json['trackId'] as String,
+      playlistId: json['playlist_id'] as String,
+      trackId: json['track_id'] as String,
       position: (json['position'] as num).toInt(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      userId: json['userId'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+      userId: json['user_id'] as String,
     );
 
-Map<String, dynamic> _$$PlaylistItemImplToJson(_$PlaylistItemImpl instance) =>
+Map<String, dynamic> _$PlaylistItemToJson(_PlaylistItem instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'playlistId': instance.playlistId,
-      'trackId': instance.trackId,
+      'playlist_id': instance.playlistId,
+      'track_id': instance.trackId,
       'position': instance.position,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-      'userId': instance.userId,
+      'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt.toIso8601String(),
+      'user_id': instance.userId,
     };

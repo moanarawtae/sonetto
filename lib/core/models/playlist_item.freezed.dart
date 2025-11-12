@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,219 +9,40 @@ part of 'playlist_item.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-PlaylistItem _$PlaylistItemFromJson(Map<String, dynamic> json) {
-  return _PlaylistItem.fromJson(json);
-}
 
 /// @nodoc
 mixin _$PlaylistItem {
-  String get id => throw _privateConstructorUsedError;
-  String get playlistId => throw _privateConstructorUsedError;
-  String get trackId => throw _privateConstructorUsedError;
-  int get position => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
-  String get userId => throw _privateConstructorUsedError;
-
-  /// Serializes this PlaylistItem to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  String get id;
+  @JsonKey(name: 'playlist_id')
+  String get playlistId;
+  @JsonKey(name: 'track_id')
+  String get trackId;
+  int get position;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt;
+  @JsonKey(name: 'updated_at')
+  DateTime get updatedAt;
+  @JsonKey(name: 'user_id')
+  String get userId;
 
   /// Create a copy of PlaylistItem
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
   $PlaylistItemCopyWith<PlaylistItem> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+      _$PlaylistItemCopyWithImpl<PlaylistItem>(
+          this as PlaylistItem, _$identity);
 
-/// @nodoc
-abstract class $PlaylistItemCopyWith<$Res> {
-  factory $PlaylistItemCopyWith(
-          PlaylistItem value, $Res Function(PlaylistItem) then) =
-      _$PlaylistItemCopyWithImpl<$Res, PlaylistItem>;
-  @useResult
-  $Res call(
-      {String id,
-      String playlistId,
-      String trackId,
-      int position,
-      DateTime createdAt,
-      DateTime updatedAt,
-      String userId});
-}
-
-/// @nodoc
-class _$PlaylistItemCopyWithImpl<$Res, $Val extends PlaylistItem>
-    implements $PlaylistItemCopyWith<$Res> {
-  _$PlaylistItemCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of PlaylistItem
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? playlistId = null,
-    Object? trackId = null,
-    Object? position = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-    Object? userId = null,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      playlistId: null == playlistId
-          ? _value.playlistId
-          : playlistId // ignore: cast_nullable_to_non_nullable
-              as String,
-      trackId: null == trackId
-          ? _value.trackId
-          : trackId // ignore: cast_nullable_to_non_nullable
-              as String,
-      position: null == position
-          ? _value.position
-          : position // ignore: cast_nullable_to_non_nullable
-              as int,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$PlaylistItemImplCopyWith<$Res>
-    implements $PlaylistItemCopyWith<$Res> {
-  factory _$$PlaylistItemImplCopyWith(
-          _$PlaylistItemImpl value, $Res Function(_$PlaylistItemImpl) then) =
-      __$$PlaylistItemImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String id,
-      String playlistId,
-      String trackId,
-      int position,
-      DateTime createdAt,
-      DateTime updatedAt,
-      String userId});
-}
-
-/// @nodoc
-class __$$PlaylistItemImplCopyWithImpl<$Res>
-    extends _$PlaylistItemCopyWithImpl<$Res, _$PlaylistItemImpl>
-    implements _$$PlaylistItemImplCopyWith<$Res> {
-  __$$PlaylistItemImplCopyWithImpl(
-      _$PlaylistItemImpl _value, $Res Function(_$PlaylistItemImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of PlaylistItem
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? playlistId = null,
-    Object? trackId = null,
-    Object? position = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-    Object? userId = null,
-  }) {
-    return _then(_$PlaylistItemImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      playlistId: null == playlistId
-          ? _value.playlistId
-          : playlistId // ignore: cast_nullable_to_non_nullable
-              as String,
-      trackId: null == trackId
-          ? _value.trackId
-          : trackId // ignore: cast_nullable_to_non_nullable
-              as String,
-      position: null == position
-          ? _value.position
-          : position // ignore: cast_nullable_to_non_nullable
-              as int,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$PlaylistItemImpl implements _PlaylistItem {
-  const _$PlaylistItemImpl(
-      {required this.id,
-      required this.playlistId,
-      required this.trackId,
-      required this.position,
-      required this.createdAt,
-      required this.updatedAt,
-      required this.userId});
-
-  factory _$PlaylistItemImpl.fromJson(Map<String, dynamic> json) =>
-      _$$PlaylistItemImplFromJson(json);
-
-  @override
-  final String id;
-  @override
-  final String playlistId;
-  @override
-  final String trackId;
-  @override
-  final int position;
-  @override
-  final DateTime createdAt;
-  @override
-  final DateTime updatedAt;
-  @override
-  final String userId;
-
-  @override
-  String toString() {
-    return 'PlaylistItem(id: $id, playlistId: $playlistId, trackId: $trackId, position: $position, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
-  }
+  /// Serializes this PlaylistItem to a JSON map.
+  Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$PlaylistItemImpl &&
+            other is PlaylistItem &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.playlistId, playlistId) ||
                 other.playlistId == playlistId) &&
@@ -240,54 +61,413 @@ class _$PlaylistItemImpl implements _PlaylistItem {
   int get hashCode => Object.hash(runtimeType, id, playlistId, trackId,
       position, createdAt, updatedAt, userId);
 
-  /// Create a copy of PlaylistItem
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  @pragma('vm:prefer-inline')
-  _$$PlaylistItemImplCopyWith<_$PlaylistItemImpl> get copyWith =>
-      __$$PlaylistItemImplCopyWithImpl<_$PlaylistItemImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$PlaylistItemImplToJson(
-      this,
-    );
+  String toString() {
+    return 'PlaylistItem(id: $id, playlistId: $playlistId, trackId: $trackId, position: $position, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
   }
 }
 
-abstract class _PlaylistItem implements PlaylistItem {
-  const factory _PlaylistItem(
-      {required final String id,
-      required final String playlistId,
-      required final String trackId,
-      required final int position,
-      required final DateTime createdAt,
-      required final DateTime updatedAt,
-      required final String userId}) = _$PlaylistItemImpl;
+/// @nodoc
+abstract mixin class $PlaylistItemCopyWith<$Res> {
+  factory $PlaylistItemCopyWith(
+          PlaylistItem value, $Res Function(PlaylistItem) _then) =
+      _$PlaylistItemCopyWithImpl;
+  @useResult
+  $Res call(
+      {String id,
+      @JsonKey(name: 'playlist_id') String playlistId,
+      @JsonKey(name: 'track_id') String trackId,
+      int position,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'user_id') String userId});
+}
 
-  factory _PlaylistItem.fromJson(Map<String, dynamic> json) =
-      _$PlaylistItemImpl.fromJson;
+/// @nodoc
+class _$PlaylistItemCopyWithImpl<$Res> implements $PlaylistItemCopyWith<$Res> {
+  _$PlaylistItemCopyWithImpl(this._self, this._then);
+
+  final PlaylistItem _self;
+  final $Res Function(PlaylistItem) _then;
+
+  /// Create a copy of PlaylistItem
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? playlistId = null,
+    Object? trackId = null,
+    Object? position = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? userId = null,
+  }) {
+    return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      playlistId: null == playlistId
+          ? _self.playlistId
+          : playlistId // ignore: cast_nullable_to_non_nullable
+              as String,
+      trackId: null == trackId
+          ? _self.trackId
+          : trackId // ignore: cast_nullable_to_non_nullable
+              as String,
+      position: null == position
+          ? _self.position
+          : position // ignore: cast_nullable_to_non_nullable
+              as int,
+      createdAt: null == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _self.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      userId: null == userId
+          ? _self.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [PlaylistItem].
+extension PlaylistItemPatterns on PlaylistItem {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_PlaylistItem value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _PlaylistItem() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_PlaylistItem value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _PlaylistItem():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_PlaylistItem value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _PlaylistItem() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+            String id,
+            @JsonKey(name: 'playlist_id') String playlistId,
+            @JsonKey(name: 'track_id') String trackId,
+            int position,
+            @JsonKey(name: 'created_at') DateTime createdAt,
+            @JsonKey(name: 'updated_at') DateTime updatedAt,
+            @JsonKey(name: 'user_id') String userId)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _PlaylistItem() when $default != null:
+        return $default(_that.id, _that.playlistId, _that.trackId,
+            _that.position, _that.createdAt, _that.updatedAt, _that.userId);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+            String id,
+            @JsonKey(name: 'playlist_id') String playlistId,
+            @JsonKey(name: 'track_id') String trackId,
+            int position,
+            @JsonKey(name: 'created_at') DateTime createdAt,
+            @JsonKey(name: 'updated_at') DateTime updatedAt,
+            @JsonKey(name: 'user_id') String userId)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _PlaylistItem():
+        return $default(_that.id, _that.playlistId, _that.trackId,
+            _that.position, _that.createdAt, _that.updatedAt, _that.userId);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+            String id,
+            @JsonKey(name: 'playlist_id') String playlistId,
+            @JsonKey(name: 'track_id') String trackId,
+            int position,
+            @JsonKey(name: 'created_at') DateTime createdAt,
+            @JsonKey(name: 'updated_at') DateTime updatedAt,
+            @JsonKey(name: 'user_id') String userId)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _PlaylistItem() when $default != null:
+        return $default(_that.id, _that.playlistId, _that.trackId,
+            _that.position, _that.createdAt, _that.updatedAt, _that.userId);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _PlaylistItem implements PlaylistItem {
+  const _PlaylistItem(
+      {required this.id,
+      @JsonKey(name: 'playlist_id') required this.playlistId,
+      @JsonKey(name: 'track_id') required this.trackId,
+      required this.position,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'updated_at') required this.updatedAt,
+      @JsonKey(name: 'user_id') required this.userId});
+  factory _PlaylistItem.fromJson(Map<String, dynamic> json) =>
+      _$PlaylistItemFromJson(json);
 
   @override
-  String get id;
+  final String id;
   @override
-  String get playlistId;
+  @JsonKey(name: 'playlist_id')
+  final String playlistId;
   @override
-  String get trackId;
+  @JsonKey(name: 'track_id')
+  final String trackId;
   @override
-  int get position;
+  final int position;
   @override
-  DateTime get createdAt;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
   @override
-  DateTime get updatedAt;
+  @JsonKey(name: 'updated_at')
+  final DateTime updatedAt;
   @override
-  String get userId;
+  @JsonKey(name: 'user_id')
+  final String userId;
 
   /// Create a copy of PlaylistItem
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PlaylistItemImplCopyWith<_$PlaylistItemImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  @pragma('vm:prefer-inline')
+  _$PlaylistItemCopyWith<_PlaylistItem> get copyWith =>
+      __$PlaylistItemCopyWithImpl<_PlaylistItem>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$PlaylistItemToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _PlaylistItem &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.playlistId, playlistId) ||
+                other.playlistId == playlistId) &&
+            (identical(other.trackId, trackId) || other.trackId == trackId) &&
+            (identical(other.position, position) ||
+                other.position == position) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.userId, userId) || other.userId == userId));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, id, playlistId, trackId,
+      position, createdAt, updatedAt, userId);
+
+  @override
+  String toString() {
+    return 'PlaylistItem(id: $id, playlistId: $playlistId, trackId: $trackId, position: $position, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
+  }
 }
+
+/// @nodoc
+abstract mixin class _$PlaylistItemCopyWith<$Res>
+    implements $PlaylistItemCopyWith<$Res> {
+  factory _$PlaylistItemCopyWith(
+          _PlaylistItem value, $Res Function(_PlaylistItem) _then) =
+      __$PlaylistItemCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      @JsonKey(name: 'playlist_id') String playlistId,
+      @JsonKey(name: 'track_id') String trackId,
+      int position,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      @JsonKey(name: 'user_id') String userId});
+}
+
+/// @nodoc
+class __$PlaylistItemCopyWithImpl<$Res>
+    implements _$PlaylistItemCopyWith<$Res> {
+  __$PlaylistItemCopyWithImpl(this._self, this._then);
+
+  final _PlaylistItem _self;
+  final $Res Function(_PlaylistItem) _then;
+
+  /// Create a copy of PlaylistItem
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? id = null,
+    Object? playlistId = null,
+    Object? trackId = null,
+    Object? position = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? userId = null,
+  }) {
+    return _then(_PlaylistItem(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      playlistId: null == playlistId
+          ? _self.playlistId
+          : playlistId // ignore: cast_nullable_to_non_nullable
+              as String,
+      trackId: null == trackId
+          ? _self.trackId
+          : trackId // ignore: cast_nullable_to_non_nullable
+              as String,
+      position: null == position
+          ? _self.position
+          : position // ignore: cast_nullable_to_non_nullable
+              as int,
+      createdAt: null == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _self.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      userId: null == userId
+          ? _self.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+// dart format on

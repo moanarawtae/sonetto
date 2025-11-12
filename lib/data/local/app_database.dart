@@ -62,6 +62,9 @@ class SettingsEntries extends Table {
   TextColumn get id => text()();
   BoolColumn get normalizeVolume => boolean().withDefault(const Constant(true))();
   IntColumn get crossfadeMs => integer().withDefault(const Constant(5000))();
+  BoolColumn get scrobbleToLastFm => boolean().withDefault(const Constant(false))();
+  TextColumn get lastFmSessionKey => text().nullable()();
+  TextColumn get lastFmUsername => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   TextColumn get userId => text()();
@@ -75,13 +78,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrator, from, to) async {
           if (from < 2) {
             await migrator.addColumn(tracks, tracks.localPath);
+          }
+          if (from < 3) {
+            await migrator.addColumn(settingsEntries, settingsEntries.scrobbleToLastFm);
+            await migrator.addColumn(settingsEntries, settingsEntries.lastFmSessionKey);
+            await migrator.addColumn(settingsEntries, settingsEntries.lastFmUsername);
           }
         },
       );
@@ -179,6 +187,10 @@ class AppDatabase extends _$AppDatabase {
     return row == null ? null : _settingsFromRow(row);
   }
 
+  Stream<UserSettings?> watchSettings() {
+    return select(settingsEntries).watchSingleOrNull().map((row) => row == null ? null : _settingsFromRow(row));
+  }
+
   TracksCompanion _trackToCompanion(Track track) => TracksCompanion(
         id: Value(track.id),
         title: Value(track.title),
@@ -247,6 +259,9 @@ class AppDatabase extends _$AppDatabase {
         id: Value(settings.id),
         normalizeVolume: Value(settings.normalizeVolume),
         crossfadeMs: Value(settings.crossfadeMs),
+        scrobbleToLastFm: Value(settings.scrobbleToLastFm),
+        lastFmSessionKey: Value(settings.lastFmSessionKey),
+        lastFmUsername: Value(settings.lastFmUsername),
         createdAt: Value(settings.createdAt),
         updatedAt: Value(settings.updatedAt),
         userId: Value(settings.userId),
@@ -256,6 +271,9 @@ class AppDatabase extends _$AppDatabase {
         id: row.id,
         normalizeVolume: row.normalizeVolume,
         crossfadeMs: row.crossfadeMs,
+        scrobbleToLastFm: row.scrobbleToLastFm,
+        lastFmSessionKey: row.lastFmSessionKey,
+        lastFmUsername: row.lastFmUsername,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         userId: row.userId,

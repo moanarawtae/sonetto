@@ -6,22 +6,28 @@ part of 'user_settings.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserSettingsImpl _$$UserSettingsImplFromJson(Map<String, dynamic> json) =>
-    _$UserSettingsImpl(
+_UserSettings _$UserSettingsFromJson(Map<String, dynamic> json) =>
+    _UserSettings(
       id: json['id'] as String,
-      normalizeVolume: json['normalizeVolume'] as bool,
-      crossfadeMs: (json['crossfadeMs'] as num).toInt(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      userId: json['userId'] as String,
+      normalizeVolume: json['normalize_volume'] as bool,
+      crossfadeMs: (json['crossfade_ms'] as num).toInt(),
+      scrobbleToLastFm: json['scrobble_to_lastfm'] as bool? ?? false,
+      lastFmSessionKey: json['lastfm_session_key'] as String?,
+      lastFmUsername: json['lastfm_username'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+      userId: json['user_id'] as String,
     );
 
-Map<String, dynamic> _$$UserSettingsImplToJson(_$UserSettingsImpl instance) =>
+Map<String, dynamic> _$UserSettingsToJson(_UserSettings instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'normalizeVolume': instance.normalizeVolume,
-      'crossfadeMs': instance.crossfadeMs,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-      'userId': instance.userId,
+      'normalize_volume': instance.normalizeVolume,
+      'crossfade_ms': instance.crossfadeMs,
+      'scrobble_to_lastfm': instance.scrobbleToLastFm,
+      'lastfm_session_key': instance.lastFmSessionKey,
+      'lastfm_username': instance.lastFmUsername,
+      'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt.toIso8601String(),
+      'user_id': instance.userId,
     };
