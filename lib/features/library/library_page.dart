@@ -5,7 +5,9 @@ import '../../core/models/track.dart';
 import '../../services/audio/player_service.dart';
 import '../../services/import/import_service.dart';
 import '../../services/sync/sync_service.dart';
+import '../widgets/track_artwork.dart';
 import 'library_controller.dart';
+import 'widgets/edit_track_sheet.dart';
 
 class LibraryPage extends ConsumerWidget {
   const LibraryPage({super.key});
@@ -18,7 +20,8 @@ class LibraryPage extends ConsumerWidget {
         title: const Text('biblioteca'),
         actions: [
           IconButton(
-            onPressed: () => ref.read(libraryControllerProvider.notifier).refresh(),
+            onPressed: () =>
+                ref.read(libraryControllerProvider.notifier).refresh(),
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -27,8 +30,10 @@ class LibraryPage extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
-              decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'buscar faixas'),
-              onChanged: (value) => ref.read(libraryControllerProvider.notifier).search(value),
+              decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.search), hintText: 'buscar faixas'),
+              onChanged: (value) =>
+                  ref.read(libraryControllerProvider.notifier).search(value),
             ),
           ),
         ),
@@ -68,21 +73,56 @@ class _LibraryList extends ConsumerWidget {
       itemBuilder: (context, index) {
         final track = tracks[index];
         return ListTile(
-          title: Text(track.title),
-          subtitle: Text('${track.artist} · ${track.album}'),
+          leading: TrackArtwork(
+            size: 48,
+            artworkUrl: track.artworkUrl,
+          ),
+          title: Text(
+            track.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            '${track.artist} · ${track.album}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           onTap: () => player.playTrack(track, queue: tracks),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: () async {
-              await ref.read(syncServiceProvider).deleteTrack(track);
-              await ref.read(libraryControllerProvider.notifier).refresh();
+          trailing: PopupMenuButton<_TrackMenuAction>(
+            onSelected: (action) async {
+              switch (action) {
+                case _TrackMenuAction.edit:
+                  await showModalBottomSheet<void>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => EditTrackSheet(track: track),
+                  );
+                  break;
+                case _TrackMenuAction.delete:
+                  await ref.read(syncServiceProvider).deleteTrack(track);
+                  await ref.read(libraryControllerProvider.notifier).refresh();
+                  break;
+              }
             },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: _TrackMenuAction.edit,
+                child: Text('personalizar'),
+              ),
+              PopupMenuItem(
+                value: _TrackMenuAction.delete,
+                child: Text('excluir'),
+              ),
+            ],
+            icon: const Icon(Icons.more_vert),
           ),
         );
       },
     );
   }
 }
+
+enum _TrackMenuAction { edit, delete }
 
 class _ImportTrackSheet extends ConsumerStatefulWidget {
   const _ImportTrackSheet();
@@ -146,7 +186,8 @@ class _ImportTrackSheetState extends ConsumerState<_ImportTrackSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: bottomInset + 24),
+      padding: EdgeInsets.only(
+          left: 24, right: 24, top: 24, bottom: bottomInset + 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

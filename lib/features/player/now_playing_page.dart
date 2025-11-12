@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 
 import '../../core/models/track.dart';
 import '../../services/audio/player_service.dart';
+import '../widgets/track_artwork.dart';
 
 class NowPlayingPage extends ConsumerWidget {
   const NowPlayingPage({super.key});
@@ -25,16 +26,27 @@ class NowPlayingPage extends ConsumerWidget {
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(track.title, style: Theme.of(context).textTheme.headlineSmall),
+                      TrackArtwork(
+                        size: 220,
+                        artworkUrl: track.artworkUrl,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(track.title,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                          textAlign: TextAlign.center),
                       const SizedBox(height: 8),
-                      Text('${track.artist} · ${track.album}'),
+                      Text('${track.artist} · ${track.album}',
+                          textAlign: TextAlign.center),
                       const SizedBox(height: 24),
                       _PositionSlider(player: player),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          IconButton(onPressed: player.previous, icon: const Icon(Icons.skip_previous)),
+                          IconButton(
+                              onPressed: player.previous,
+                              icon: const Icon(Icons.skip_previous)),
                           IconButton(
                             onPressed: player.togglePlayPause,
                             iconSize: 48,
@@ -42,11 +54,15 @@ class NowPlayingPage extends ConsumerWidget {
                               stream: player.playerState,
                               builder: (context, snapshot) {
                                 final playing = snapshot.data?.playing ?? false;
-                                return Icon(playing ? Icons.pause_circle : Icons.play_circle);
+                                return Icon(playing
+                                    ? Icons.pause_circle
+                                    : Icons.play_circle);
                               },
                             ),
                           ),
-                          IconButton(onPressed: player.next, icon: const Icon(Icons.skip_next)),
+                          IconButton(
+                              onPressed: player.next,
+                              icon: const Icon(Icons.skip_next)),
                         ],
                       ),
                     ],
@@ -82,7 +98,8 @@ class _PositionSliderState extends ConsumerState<_PositionSlider> {
             final position = _dragValue != null
                 ? Duration(milliseconds: _dragValue!.round())
                 : positionSnapshot.data ?? Duration.zero;
-            final maxMillis = total.inMilliseconds == 0 ? 1 : total.inMilliseconds;
+            final maxMillis =
+                total.inMilliseconds == 0 ? 1 : total.inMilliseconds;
             final currentMillis = position.inMilliseconds.clamp(0, maxMillis);
             return Slider(
               value: currentMillis.toDouble(),
